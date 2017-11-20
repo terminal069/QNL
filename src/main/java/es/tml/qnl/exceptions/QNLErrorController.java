@@ -18,8 +18,8 @@ public class QNLErrorController {
 		response.setStatus(e.getStatus().value());
 		
 		QNLGenericError genericError = new QNLGenericError();
-		genericError.setCode("001");
-		genericError.setErrorMessage("Default error message");
+		genericError.setCode(e.getStatus().getReasonPhrase());
+		genericError.setErrorMessage(e.getMessage());
 		
 		return genericError;
 	}
