@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 (http://www.altova.com) by xml (MSM) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="leagues" type="league"/>
+	<xs:complexType name="league">
+		<xs:sequence>
+			<xs:element name="code" type="xs:string"/>
+			<xs:element name="seasons" type="season" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="season">
+		<xs:sequence>
+			<xs:element name="code" type="xs:string"/>
+			<xs:element name="url" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
