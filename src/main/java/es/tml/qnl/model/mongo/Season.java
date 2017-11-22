@@ -5,7 +5,9 @@ import lombok.Data;
 @Data
 public class Season {
 
-	private String code;
+	private int code;
+	
+	private String name;
 	
 	private String url;
 }

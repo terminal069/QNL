@@ -12,5 +12,7 @@ public class League {
 
 	private String code;
 	
+	private String name;
+	
 	private List<Season> seasons;
 }

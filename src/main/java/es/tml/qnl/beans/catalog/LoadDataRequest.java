@@ -8,12 +8,9 @@ import lombok.Data;
 public class LoadDataRequest {
 
 	@NotNull
-	private boolean fullLoad;
+	private String leagueCode;
 	
-	@NotNull
-	private String league;
+	private Integer fromSeasonCode;
 	
-	private String fromSeason;
-	
-	private String toSeason;
+	private Integer toSeasonCode;
 }
