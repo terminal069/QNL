@@ -6,5 +6,6 @@ import lombok.Data;
 public class QNLGenericError {
 
 	private String code;
+	private String errorType;
 	private String errorMessage;
 }
