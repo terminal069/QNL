@@ -5,5 +5,5 @@ import es.tml.qnl.beans.catalog.LoadDataResponse;
 
 public interface CatalogService {
 
-	public LoadDataResponse loadData(LoadDataRequest request);
+	LoadDataResponse loadData(LoadDataRequest request);
 }

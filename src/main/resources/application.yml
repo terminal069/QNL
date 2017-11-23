@@ -9,3 +9,13 @@ spring:
       host: localhost
       port: 27017
       database: qnl
+
+qnl:
+  dataParser:
+      classTag:
+        round: jornadai
+        result: resultatr_in
+        local: localrr
+        visitor: visitantrr
+        localRes: marcalocalrr
+        visitorRes: marcavisitantrr
