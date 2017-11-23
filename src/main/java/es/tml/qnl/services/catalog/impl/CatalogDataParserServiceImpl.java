@@ -1,17 +1,19 @@
 package es.tml.qnl.services.catalog.impl;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import es.tml.qnl.data.Teams;
 import es.tml.qnl.exceptions.QNLException;
+import es.tml.qnl.model.mongo.Team;
+import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,15 +46,18 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	@Value("${" + QNL_DATAPARSER_CLASSTAG_VISITORRES + ":#{null}}")
 	private String visitorResClassTag;
 	
+	@Autowired
+	private TeamRepository teamRepository;
+	
+	private int round;
+	
 	@Override
 	public void parseDataFromUrl(String url) {
 		
-		// Get elements from url and class tag and parse them
+		// Get document from url and parse it
 		getDocument(url)
-			.getElementsByClass(roundClassTag).forEach(round -> {
-				round.getElementsByClass(resultClassTag).forEach(result -> {
-					parseResults(result);
-				});
+			.getElementsByClass(roundClassTag).forEach(roundElement -> {
+				parseRound(roundElement);
 			});
 	}
 
@@ -68,14 +73,39 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 		}
 	}
 	
-	private void parseResults(Element result) {
+	private void parseRound(Element roundElement) {
 		
-		String local = result.getElementsByClass(localClassTag).first().text();
-		String visitor = result.getElementsByClass(visitorClassTag).first().text();
-		String localRes = result.getElementsByClass(localResClassTag).first().text();
-		String visitorRes = result.getElementsByClass(visitorResClassTag).first().text();
+		roundElement.classNames().forEach(className -> {
+			if (className.startsWith("ij")) {
+				round = Integer.parseInt(className.substring(2));
+			}
+		});
 		
+		roundElement.getElementsByClass(resultClassTag).forEach(resultElement -> {
+			parseResults(resultElement);
+		});
+	}
+	
+	private void parseResults(Element resultElement) {
 		
+		String local = resultElement.getElementsByClass(localClassTag).first().text();
+		String visitor = resultElement.getElementsByClass(visitorClassTag).first().text();
+		String localRes = resultElement.getElementsByClass(localResClassTag).first().text();
+		String visitorRes = resultElement.getElementsByClass(visitorResClassTag).first().text();
+		
+		loadTeam(local, visitor);
+		
+		log.info("Round" + round + ": " + local + " " + localRes + " - " + visitorRes + " " + visitor);
+	}
+	
+	private void loadTeam(String... teams) {
+		
+		for (String team : teams) {
+			if (!Teams.existTeam(team)) {
+				teamRepository.save(new Team(team));
+				Teams.addTeam(team);
+			}
+		}
 	}
 
 }
