@@ -5,13 +5,26 @@
 	<xs:complexType name="league">
 		<xs:sequence>
 			<xs:element name="code" type="xs:string"/>
+			<xs:element name="name" type="xs:string"/>
 			<xs:element name="seasons" type="season" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="season">
 		<xs:sequence>
-			<xs:element name="code" type="xs:string"/>
-			<xs:element name="url" type="xs:string"/>
+			<xs:element name="code" type="xs:integer"/>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="rounds" type="round" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="round">
+		<xs:sequence>
+			<xs:element name="roundNumber" type="xs:integer"/>
+			<xs:element name="local" type="xs:string"/>
+			<xs:element name="visitor" type="xs:string"/>
+			<xs:element name="localRes" type="xs:integer"/>
+			<xs:element name="visitorRes" type="xs:integer"/>
+			<xs:element name="localPoints" type="xs:integer"/>
+			<xs:element name="visitorPoints" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

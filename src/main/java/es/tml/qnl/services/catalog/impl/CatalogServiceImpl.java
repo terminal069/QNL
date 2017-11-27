@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.beans.catalog.LoadDataResponse;
-import es.tml.qnl.model.mongo.League;
-import es.tml.qnl.model.mongo.Season;
-import es.tml.qnl.repositories.mongo.LeagueRepository;
+import es.tml.qnl.model.mongo.LeagueInfo;
+import es.tml.qnl.model.mongo.SeasonInfo;
+import es.tml.qnl.repositories.mongo.LeagueInfoRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import es.tml.qnl.services.catalog.CatalogService;
 
@@ -19,7 +19,7 @@ import es.tml.qnl.services.catalog.CatalogService;
 public class CatalogServiceImpl implements CatalogService {
 
 	@Autowired
-	private LeagueRepository leagueRepository;
+	private LeagueInfoRepository leagueRepository;
 	
 	@Autowired
 	private CatalogDataParserService catalogDataParserService;
@@ -39,7 +39,7 @@ public class CatalogServiceImpl implements CatalogService {
 		
 		// Get league data from DB and filter it by season
 		Optional.of(leagueRepository.findByLeague(request.getLeagueCode()))
-			.map(League::getSeasons)
+			.map(LeagueInfo::getSeasonsInfo)
 			.orElse(Collections.emptyList())
 			.stream()
 			.filter(season -> 
@@ -53,7 +53,7 @@ public class CatalogServiceImpl implements CatalogService {
 		return response;
 	}
 
-	private void processData(Season season) {
+	private void processData(SeasonInfo season) {
 		
 		// Parse data from league
 		catalogDataParserService.parseDataFromUrl(season.getUrl());

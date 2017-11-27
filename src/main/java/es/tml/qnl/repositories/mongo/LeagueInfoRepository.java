@@ -3,11 +3,11 @@ package es.tml.qnl.repositories.mongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import es.tml.qnl.model.mongo.League;
+import es.tml.qnl.model.mongo.LeagueInfo;
 
-public interface LeagueRepository extends MongoRepository<League, String> {
+public interface LeagueInfoRepository extends MongoRepository<LeagueInfo, String> {
 
 	@Query("{ 'code' : ?0 }")
-	League findByLeague(String leagueCode);
+	LeagueInfo findByLeague(String leagueCode);
 	
 }
