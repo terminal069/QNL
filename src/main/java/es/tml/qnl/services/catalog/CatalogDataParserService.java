@@ -4,5 +4,5 @@ import es.tml.qnl.model.mongo.Season;
 
 public interface CatalogDataParserService {
 
-	void parseDataFromUrl(String league, Season season);
+	void parseDataFromUrl(String leagueCode, Season season);
 }

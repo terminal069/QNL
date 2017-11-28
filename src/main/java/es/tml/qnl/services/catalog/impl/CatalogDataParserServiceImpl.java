@@ -14,9 +14,10 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.exceptions.QNLException;
+import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.Season;
 import es.tml.qnl.model.mongo.Team;
-import es.tml.qnl.repositories.mongo.LeagueRepository;
+import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import lombok.extern.slf4j.Slf4j;
@@ -66,16 +67,23 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	private TeamRepository teamRepository;
 	
 	@Autowired
-	private LeagueRepository leagueRepository;
+	private RoundRepository roundRepository;
 	
-	private int round;
+	
+	
+	private int roundNumber;
+	private int seasonCode;
+	private String leagueCode;
 	private Map<String, Integer> globalPoints = new HashMap<>();
 	
 	@Override
-	public void parseDataFromUrl(String league, Season season) {
+	public void parseDataFromUrl(String leagueCode, Season season) {
+		
+		// Initialize
+		initialize(leagueCode, season.getCode());
 		
 		// Delete old data to be parsed
-		deleteData(league, season.getCode());
+		deleteData();
 		
 		// Get document from url and parse it
 		getDocument(season.getUrl())
@@ -84,9 +92,17 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 			});
 	}
 
-	private void deleteData(String league, int seasonCode) {
+	private void initialize(String leagueCode, int seasonCode) {
 		
+		this.seasonCode = seasonCode;
+		this.leagueCode = leagueCode;
+		this.roundNumber = 0;
+		this.globalPoints.clear();
+	}
+
+	private void deleteData() {
 		
+		roundRepository.deleteByLeagueAndSeason(leagueCode, seasonCode);
 	}
 
 	private Document getDocument(String url) {
@@ -105,7 +121,7 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 		
 		roundElement.classNames().forEach(className -> {
 			if (className.startsWith("ij")) {
-				round = Integer.parseInt(className.substring(2));
+				roundNumber = Integer.parseInt(className.substring(2));
 			}
 		});
 		
@@ -132,9 +148,18 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 		addGlobalPoints(visitor, visitorRoundPoints);
 		
 		// Save data
-//		leagueRepository.
+		roundRepository.save(new Round(
+				roundNumber,
+				seasonCode,
+				leagueCode,
+				local,
+				visitor,
+				localRes,
+				visitorRes,
+				globalPoints.get(local),
+				globalPoints.get(visitor)));
 		
-		log.info("Round" + round + ": " + local + " " + localRes + " - " + visitorRes + " " + visitor
+		log.info("Round" + roundNumber + ": " + local + " " + localRes + " - " + visitorRes + " " + visitor
 				+ " (" + globalPoints.get(local) + " - " + globalPoints.get(visitor) + ")");
 	}
 	

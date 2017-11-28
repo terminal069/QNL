@@ -9,6 +9,6 @@ import es.tml.qnl.model.mongo.Season;
 
 public interface SeasonRepository extends MongoRepository<Season, String> {
 
-	@Query("{ 'leagueCode' : ?0 }")
-	List<Season> findByLeague(String leagueCode);
+	@Query("{ 'leagueCode': ?0, $and: [ {'code': {$gte: ?1}}, {'code': {$lte: ?2}} ] }")
+	List<Season> findByLeagueAndSeasonCodeRank(String leagueCode, int greaterThanOrEqual, int lessThanOrEqual);
 }

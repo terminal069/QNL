@@ -2,7 +2,6 @@ package es.tml.qnl.services.catalog.impl;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +36,12 @@ public class CatalogServiceImpl implements CatalogService {
 		}
 		
 		// Get league data from DB and filter it by season
-		Optional.of(seasonRepository.findByLeague(request.getLeagueCode()))
+		Optional.of(seasonRepository.findByLeagueAndSeasonCodeRank(
+				request.getLeagueCode(),
+				request.getFromSeasonCode(),
+				request.getToSeasonCode()))
 			.orElse(Collections.emptyList())
 			.stream()
-			.filter(season -> 
-				season.getCode() >= request.getFromSeasonCode() 
-				&& season.getCode() <= request.getToSeasonCode())
-			.collect(Collectors.toList())
 			.forEach(season -> {
 				processData(request.getLeagueCode(), season);
 			});
@@ -51,10 +49,10 @@ public class CatalogServiceImpl implements CatalogService {
 		return response;
 	}
 
-	private void processData(String league, Season season) {
+	private void processData(String leagueCode, Season season) {
 		
 		// Parse data from league
-		catalogDataParserService.parseDataFromUrl(league, season);
+		catalogDataParserService.parseDataFromUrl(leagueCode, season);
 		
 		// Save parsed data into DB
 		
