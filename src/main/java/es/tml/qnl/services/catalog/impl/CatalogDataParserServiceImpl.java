@@ -1,6 +1,8 @@
 package es.tml.qnl.services.catalog.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.exceptions.QNLException;
+import es.tml.qnl.model.mongo.Season;
 import es.tml.qnl.model.mongo.Team;
+import es.tml.qnl.repositories.mongo.LeagueRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +31,9 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	private static final String QNL_DATAPARSER_CLASSTAG_VISITOR = "qnl.dataParser.classTag.visitor";
 	private static final String QNL_DATAPARSER_CLASSTAG_LOCALRES = "qnl.dataParser.classTag.localRes";
 	private static final String QNL_DATAPARSER_CLASSTAG_VISITORRES = "qnl.dataParser.classTag.visitorRes";
+	private static final String QNL_POINTS_WIN = "qnl.points.win";
+	private static final String QNL_POINTS_DRAW = "qnl.points.draw";
+	private static final String QNL_POINTS_LOSE = "qnl.points.lose";
 	
 	@Value("${" + QNL_DATAPARSER_CLASSTAG_ROUND + ":#{null}}")
 	private String roundClassTag;
@@ -46,19 +53,40 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	@Value("${" + QNL_DATAPARSER_CLASSTAG_VISITORRES + ":#{null}}")
 	private String visitorResClassTag;
 	
+	@Value("${" + QNL_POINTS_WIN + ":#{null}}")
+	private Integer win;
+	
+	@Value("${" + QNL_POINTS_DRAW + ":#{null}}")
+	private Integer draw;
+	
+	@Value("${" + QNL_POINTS_LOSE + ":#{null}}")
+	private Integer lose;
+	
 	@Autowired
 	private TeamRepository teamRepository;
 	
+	@Autowired
+	private LeagueRepository leagueRepository;
+	
 	private int round;
+	private Map<String, Integer> globalPoints = new HashMap<>();
 	
 	@Override
-	public void parseDataFromUrl(String url) {
+	public void parseDataFromUrl(String league, Season season) {
+		
+		// Delete old data to be parsed
+		deleteData(league, season.getCode());
 		
 		// Get document from url and parse it
-		getDocument(url)
+		getDocument(season.getUrl())
 			.getElementsByClass(roundClassTag).forEach(roundElement -> {
 				parseRound(roundElement);
 			});
+	}
+
+	private void deleteData(String league, int seasonCode) {
+		
+		
 	}
 
 	private Document getDocument(String url) {
@@ -88,14 +116,26 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	
 	private void parseResults(Element resultElement) {
 		
+		// Load teams
 		String local = resultElement.getElementsByClass(localClassTag).first().text();
 		String visitor = resultElement.getElementsByClass(visitorClassTag).first().text();
-		String localRes = resultElement.getElementsByClass(localResClassTag).first().text();
-		String visitorRes = resultElement.getElementsByClass(visitorResClassTag).first().text();
-		
 		loadTeam(local, visitor);
 		
-		log.info("Round" + round + ": " + local + " " + localRes + " - " + visitorRes + " " + visitor);
+		// Calculate round points
+		int localRes = Integer.parseInt(resultElement.getElementsByClass(localResClassTag).first().text());
+		int visitorRes = Integer.parseInt(resultElement.getElementsByClass(visitorResClassTag).first().text());
+		int localRoundPoints = calculatePoints(localRes, visitorRes);
+		int visitorRoundPoints = calculatePoints(visitorRes, localRes);
+		
+		// Add global points
+		addGlobalPoints(local, localRoundPoints);
+		addGlobalPoints(visitor, visitorRoundPoints);
+		
+		// Save data
+//		leagueRepository.
+		
+		log.info("Round" + round + ": " + local + " " + localRes + " - " + visitorRes + " " + visitor
+				+ " (" + globalPoints.get(local) + " - " + globalPoints.get(visitor) + ")");
 	}
 	
 	private void loadTeam(String... teams) {
@@ -106,6 +146,18 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 				Teams.addTeam(team);
 			}
 		}
+	}
+	
+	private int calculatePoints(int resA, int resB) {
+		
+		return resA > resB ? win : (resA == resB ? draw : lose);
+	}
+	
+	private void addGlobalPoints(String team, int localRoundPoints) {
+		
+		int points = globalPoints.get(team) == null ? 0 : globalPoints.get(team);
+		
+		globalPoints.put(team, points + localRoundPoints);
 	}
 
 }

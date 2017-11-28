@@ -7,6 +7,10 @@ public class Round {
 
 	private int roundNumber;
 	
+	private int seasonCode;
+	
+	private String leagueCode;
+	
 	private String local;
 	
 	private String visitor;

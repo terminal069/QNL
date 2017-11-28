@@ -1,7 +1,5 @@
 package es.tml.qnl.model.mongo;
 
-import java.util.List;
-
 import lombok.Data;
 
 @Data
@@ -11,5 +9,7 @@ public class Season {
 	
 	private String name;
 	
-	private List<Round> rounds;
+	private String leagueCode;
+	
+	private String url;
 }

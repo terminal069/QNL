@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.beans.catalog.LoadDataResponse;
-import es.tml.qnl.model.mongo.LeagueInfo;
-import es.tml.qnl.model.mongo.SeasonInfo;
-import es.tml.qnl.repositories.mongo.LeagueInfoRepository;
+import es.tml.qnl.model.mongo.Season;
+import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import es.tml.qnl.services.catalog.CatalogService;
 
@@ -19,7 +18,7 @@ import es.tml.qnl.services.catalog.CatalogService;
 public class CatalogServiceImpl implements CatalogService {
 
 	@Autowired
-	private LeagueInfoRepository leagueRepository;
+	private SeasonRepository seasonRepository;
 	
 	@Autowired
 	private CatalogDataParserService catalogDataParserService;
@@ -38,25 +37,24 @@ public class CatalogServiceImpl implements CatalogService {
 		}
 		
 		// Get league data from DB and filter it by season
-		Optional.of(leagueRepository.findByLeague(request.getLeagueCode()))
-			.map(LeagueInfo::getSeasonsInfo)
+		Optional.of(seasonRepository.findByLeague(request.getLeagueCode()))
 			.orElse(Collections.emptyList())
 			.stream()
 			.filter(season -> 
 				season.getCode() >= request.getFromSeasonCode() 
-					&& season.getCode() <= request.getToSeasonCode())
+				&& season.getCode() <= request.getToSeasonCode())
 			.collect(Collectors.toList())
 			.forEach(season -> {
-				processData(season);
+				processData(request.getLeagueCode(), season);
 			});
 		
 		return response;
 	}
 
-	private void processData(SeasonInfo season) {
+	private void processData(String league, Season season) {
 		
 		// Parse data from league
-		catalogDataParserService.parseDataFromUrl(season.getUrl());
+		catalogDataParserService.parseDataFromUrl(league, season);
 		
 		// Save parsed data into DB
 		

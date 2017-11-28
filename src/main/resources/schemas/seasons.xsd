@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2010 rel. 3 (http://www.altova.com) by xml (MSM) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xs:element name="leaguesInfo" type="leagueInfo"/>
-	<xs:complexType name="leagueInfo">
-		<xs:sequence>
-			<xs:element name="code" type="xs:string"/>
-			<xs:element name="name" type="xs:string"/>
-			<xs:element name="seasonsInfo" type="seasonInfo" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="seasonInfo">
+	<xs:element name="seasons" type="season"/>
+	<xs:complexType name="season">
 		<xs:sequence>
 			<xs:element name="code" type="xs:integer"/>
 			<xs:element name="name" type="xs:string"/>
+			<xs:element name="leagueCode" type="xs:string"/>
 			<xs:element name="url" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
