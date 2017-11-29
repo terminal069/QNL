@@ -31,16 +31,16 @@ public class CatalogController {
 	@Autowired
 	private CatalogService catalogService;
 
-	@PostMapping(value = "/loadData")
+	@PostMapping
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public void loadData(@RequestBody @Valid LoadDataRequest request) {
 		
 		catalogService.loadData(request);
 	}
 	
-	@GetMapping(value = "/getRound")
+	@GetMapping(value = "/rounds")
 	@ResponseStatus(value = HttpStatus.OK)
-	public List<GetRoundResponse> getRound(@RequestParam Map<String, String> requestParams) {
+	public List<GetRoundResponse> getRounds(@RequestParam Map<String, String> requestParams) {
 		
 		return catalogService.getRound(new GetRoundRequest(
 				requestParams.get("roundNumber") == null ? null : Integer.parseInt(requestParams.get("roundNumber")),
