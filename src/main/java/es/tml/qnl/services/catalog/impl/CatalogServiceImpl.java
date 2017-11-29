@@ -1,14 +1,18 @@
 package es.tml.qnl.services.catalog.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import es.tml.qnl.beans.catalog.GetRoundRequest;
+import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
-import es.tml.qnl.beans.catalog.LoadDataResponse;
 import es.tml.qnl.model.mongo.Season;
+import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import es.tml.qnl.services.catalog.CatalogService;
@@ -20,12 +24,13 @@ public class CatalogServiceImpl implements CatalogService {
 	private SeasonRepository seasonRepository;
 	
 	@Autowired
+	private RoundRepository roundRepository;
+	
+	@Autowired
 	private CatalogDataParserService catalogDataParserService;
 	
 	@Override
-	public LoadDataResponse loadData(LoadDataRequest request) {
-		
-		LoadDataResponse response = new LoadDataResponse();
+	public void loadData(LoadDataRequest request) {
 		
 		// Set filter in request
 		if (request.getFromSeasonCode() == null) {
@@ -45,8 +50,6 @@ public class CatalogServiceImpl implements CatalogService {
 			.forEach(season -> {
 				processData(request.getLeagueCode(), season);
 			});
-		
-		return response;
 	}
 
 	private void processData(String leagueCode, Season season) {
@@ -56,6 +59,34 @@ public class CatalogServiceImpl implements CatalogService {
 		
 		// Save parsed data into DB
 		
+	}
+
+	@Override
+	public List<GetRoundResponse> getRound(GetRoundRequest request) {
+		
+		List<GetRoundResponse> response = new ArrayList<>();
+		
+		roundRepository.getRoundByRoundSeasonLeagueLocalVisitor(
+				request.getRoundNumber(),
+				request.getSeasonCode(),
+				request.getLeagueCode(),
+				request.getLocal(),
+				request.getVisitor())
+			.stream()
+			.forEach(round -> {
+				response.add(new GetRoundResponse(
+						round.getRoundNumber(),
+						round.getSeasonCode(),
+						round.getLeagueCode(),
+						round.getLocal(),
+						round.getVisitor(),
+						round.getLocalRes(),
+						round.getVisitorRes(),
+						round.getLocalPoints(),
+						round.getVisitorPoints()));
+			});
+		
+		return response;
 	}
 
 }

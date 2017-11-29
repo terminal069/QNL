@@ -1,9 +1,14 @@
 package es.tml.qnl.services.catalog;
 
+import java.util.List;
+
+import es.tml.qnl.beans.catalog.GetRoundRequest;
+import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
-import es.tml.qnl.beans.catalog.LoadDataResponse;
 
 public interface CatalogService {
 
-	LoadDataResponse loadData(LoadDataRequest request);
+	void loadData(LoadDataRequest request);
+
+	List<GetRoundResponse> getRound(GetRoundRequest request);
 }
