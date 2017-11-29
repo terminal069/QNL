@@ -6,14 +6,17 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import es.tml.qnl.beans.catalog.GetRoundRequest;
 import es.tml.qnl.beans.catalog.GetRoundResponse;
+import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.model.mongo.Season;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
+import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import es.tml.qnl.services.catalog.CatalogService;
 
@@ -25,6 +28,9 @@ public class CatalogServiceImpl implements CatalogService {
 	
 	@Autowired
 	private RoundRepository roundRepository;
+	
+	@Autowired
+	private TeamRepository teamRepository;
 	
 	@Autowired
 	private CatalogDataParserService catalogDataParserService;
@@ -84,6 +90,20 @@ public class CatalogServiceImpl implements CatalogService {
 						round.getVisitorRes(),
 						round.getLocalPoints(),
 						round.getVisitorPoints()));
+			});
+		
+		return response;
+	}
+
+	@Override
+	public List<GetTeamsResponse> getTeams() {
+		
+		List<GetTeamsResponse> response = new ArrayList<>();
+		
+		teamRepository.findAll(new Sort("name"))
+			.stream()
+			.forEach(team -> {
+				response.add(new GetTeamsResponse(team.getName()));
 			});
 		
 		return response;

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.tml.qnl.beans.catalog.GetRoundRequest;
 import es.tml.qnl.beans.catalog.GetRoundResponse;
+import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.services.catalog.CatalogService;
 
@@ -48,5 +49,12 @@ public class CatalogController {
 				requestParams.get("leagueCode"),
 				requestParams.get("local"),
 				requestParams.get("visitor")));
+	}
+	
+	@GetMapping(value = "/teams")
+	@ResponseStatus(value = HttpStatus.OK)
+	public List<GetTeamsResponse> getTeams() {
+		
+		return catalogService.getTeams();
 	}
 }
