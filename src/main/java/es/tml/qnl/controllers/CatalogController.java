@@ -29,6 +29,12 @@ import es.tml.qnl.services.catalog.CatalogService;
 		path = "/qnl/catalog")
 public class CatalogController {
 	
+	private static final String ROUND_NUMBER = "roundNumber";
+	private static final String SEASON_CODE = "seasonCode";
+	private static final String LEAGUE_CODE = "leagueCode";
+	private static final String LOCAL = "local";
+	private static final String VISITOR = "visitor";
+	
 	@Autowired
 	private CatalogService catalogService;
 
@@ -44,11 +50,11 @@ public class CatalogController {
 	public List<GetRoundResponse> getRounds(@RequestParam Map<String, String> requestParams) {
 		
 		return catalogService.getRound(new GetRoundRequest(
-				requestParams.get("roundNumber") == null ? null : Integer.parseInt(requestParams.get("roundNumber")),
-				requestParams.get("seasonCode") == null ? null : Integer.parseInt(requestParams.get("seasonCode")),
-				requestParams.get("leagueCode"),
-				requestParams.get("local"),
-				requestParams.get("visitor")));
+				requestParams.get(ROUND_NUMBER) == null ? null : Integer.parseInt(requestParams.get(ROUND_NUMBER)),
+				requestParams.get(SEASON_CODE) == null ? null : Integer.parseInt(requestParams.get(SEASON_CODE)),
+				requestParams.get(LEAGUE_CODE),
+				requestParams.get(LOCAL),
+				requestParams.get(VISITOR)));
 	}
 	
 	@GetMapping(value = "/teams")

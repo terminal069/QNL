@@ -23,10 +23,10 @@
     </appender>
 
 	<!-- Custom log levels -->
-	<logger name="org.mongodb.driver.cluster" level="INFO" />
+	<logger name="es.tml.qnl" level="DEBUG" />
 
 	<!-- Root level -->
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>

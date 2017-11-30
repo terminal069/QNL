@@ -158,9 +158,6 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 				visitorRes,
 				globalPoints.get(local),
 				globalPoints.get(visitor)));
-		
-		log.info("Round" + roundNumber + ": " + local + " " + localRes + " - " + visitorRes + " " + visitor
-				+ " (" + globalPoints.get(local) + " - " + globalPoints.get(visitor) + ")");
 	}
 	
 	private void loadTeam(String... teams) {
