@@ -65,5 +65,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 		
 		statAVsBRepository.save(statAVsB);
 	}
+
+	@Override
+	public void calculateResultSequence() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

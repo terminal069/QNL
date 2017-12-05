@@ -26,4 +26,10 @@ public class StatisticsController {
 		
 		statisticsService.calculateAVsB();
 	}
+	
+	@PostMapping(value = "/resultSequence")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	public void resultSequence() {
+		
+	}
 }
