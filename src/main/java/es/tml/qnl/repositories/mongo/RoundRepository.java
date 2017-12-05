@@ -21,4 +21,7 @@ public interface RoundRepository extends MongoRepository<Round, String> {
 			+ "]}")
 	List<Round> getRoundByRoundSeasonLeagueLocalVisitor(Integer roundNumber, Integer seasonCode,
 			String leagueCode, String local, String visitor);
+	
+	@Query(value = "{ 'local': ?0, 'visitor': ?1 }")
+	List<Round> getRoundByLocalVisitor(String local, String visitor);
 }
