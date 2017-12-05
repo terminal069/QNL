@@ -31,5 +31,6 @@ public class StatisticsController {
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public void resultSequence() {
 		
+		statisticsService.calculateResultSequence();
 	}
 }
