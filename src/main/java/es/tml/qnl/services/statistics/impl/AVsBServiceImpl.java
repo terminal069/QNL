@@ -10,10 +10,10 @@ import es.tml.qnl.model.mongo.StatAVsB;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatAVsBRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
-import es.tml.qnl.services.statistics.StatisticsService;
+import es.tml.qnl.services.statistics.AVsBService;
 
 @Service
-public class StatisticsServiceImpl implements StatisticsService {
+public class AVsBServiceImpl implements AVsBService {
 
 	@Autowired
 	private RoundRepository roundRepository;
@@ -27,10 +27,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 	@Override
 	public void calculateAVsB() {
 		
-		// Delete data in statAVsB repository
+		// Delete data from statAVsB repository
 		statAVsBRepository.deleteAll();
 		
-		// Perform combinatory of all teams and search rounds that match
+		// Perform combinatory of all teams
 		teamRepository.findAll()
 			.forEach(local -> {
 				teamRepository.findAll()
@@ -43,12 +43,12 @@ public class StatisticsServiceImpl implements StatisticsService {
 		if (!local.equals(visitor)) {
 			roundRepository.getRoundByLocalVisitor(local, visitor)
 				.forEach(round -> {
-					calculateResults(round, local, visitor);
+					calculateAndPersistResults(round, local, visitor);
 				});
 		}
 	}
 
-	private void calculateResults(Round round, String local, String visitor) {
+	private void calculateAndPersistResults(Round round, String local, String visitor) {
 		
 		StatAVsB statAVsB = Optional.ofNullable(statAVsBRepository.getStatAVsBByLocalVisitor(local, visitor))
 				.orElse(new StatAVsB(local, visitor));
@@ -66,10 +66,4 @@ public class StatisticsServiceImpl implements StatisticsService {
 		statAVsBRepository.save(statAVsB);
 	}
 
-	@Override
-	public void calculateResultSequence() {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

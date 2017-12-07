@@ -1,14 +1,19 @@
 package es.tml.qnl.controllers;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.tml.qnl.services.statistics.StatisticsService;
+import es.tml.qnl.beans.statistics.ResultSequenceRequest;
+import es.tml.qnl.services.statistics.AVsBService;
+import es.tml.qnl.services.statistics.ResultSequenceService;
 
 @RestController
 @RequestMapping(
@@ -18,19 +23,22 @@ import es.tml.qnl.services.statistics.StatisticsService;
 public class StatisticsController {
 	
 	@Autowired
-	private StatisticsService statisticsService;
+	private AVsBService aVsBService;
+	
+	@Autowired
+	private ResultSequenceService resultSequenceService;
 
 	@PostMapping(value = "/aVsB")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public void calculateAVsB() {
 		
-		statisticsService.calculateAVsB();
+		aVsBService.calculateAVsB();
 	}
 	
 	@PostMapping(value = "/resultSequence")
 	@ResponseStatus(code = HttpStatus.CREATED)
-	public void resultSequence() {
+	public void resultSequence(@Valid @RequestBody ResultSequenceRequest request) {
 		
-		statisticsService.calculateResultSequence();
+		resultSequenceService.calculateResultSequence(request.getMaxIterations());
 	}
 }

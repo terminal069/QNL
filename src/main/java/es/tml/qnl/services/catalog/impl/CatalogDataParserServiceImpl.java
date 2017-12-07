@@ -36,31 +36,31 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	private static final String QNL_POINTS_DRAW = "qnl.points.draw";
 	private static final String QNL_POINTS_LOSE = "qnl.points.lose";
 	
-	@Value("${" + QNL_DATAPARSER_CLASSTAG_ROUND + ":#{null}}")
+	@Value("${" + QNL_DATAPARSER_CLASSTAG_ROUND + "}")
 	private String roundClassTag;
 
-	@Value("${" + QNL_DATAPARSER_CLASSTAG_RESULT + ":#{null}}")
+	@Value("${" + QNL_DATAPARSER_CLASSTAG_RESULT + "}")
 	private String resultClassTag;
 	
-	@Value("${" + QNL_DATAPARSER_CLASSTAG_LOCAL + ":#{null}}")
+	@Value("${" + QNL_DATAPARSER_CLASSTAG_LOCAL + "}")
 	private String localClassTag;
 	
-	@Value("${" + QNL_DATAPARSER_CLASSTAG_VISITOR + ":#{null}}")
+	@Value("${" + QNL_DATAPARSER_CLASSTAG_VISITOR + "}")
 	private String visitorClassTag;
 	
-	@Value("${" + QNL_DATAPARSER_CLASSTAG_LOCALRES + ":#{null}}")
+	@Value("${" + QNL_DATAPARSER_CLASSTAG_LOCALRES + "}")
 	private String localResClassTag;
 	
-	@Value("${" + QNL_DATAPARSER_CLASSTAG_VISITORRES + ":#{null}}")
+	@Value("${" + QNL_DATAPARSER_CLASSTAG_VISITORRES + "}")
 	private String visitorResClassTag;
 	
-	@Value("${" + QNL_POINTS_WIN + ":#{null}}")
+	@Value("${" + QNL_POINTS_WIN + "}")
 	private Integer win;
 	
-	@Value("${" + QNL_POINTS_DRAW + ":#{null}}")
+	@Value("${" + QNL_POINTS_DRAW + "}")
 	private Integer draw;
 	
-	@Value("${" + QNL_POINTS_LOSE + ":#{null}}")
+	@Value("${" + QNL_POINTS_LOSE + "}")
 	private Integer lose;
 	
 	@Autowired
@@ -68,8 +68,6 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	
 	@Autowired
 	private RoundRepository roundRepository;
-	
-	
 	
 	private int roundNumber;
 	private int seasonCode;

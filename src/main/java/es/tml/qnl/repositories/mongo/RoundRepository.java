@@ -2,6 +2,7 @@ package es.tml.qnl.repositories.mongo;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
@@ -24,4 +25,7 @@ public interface RoundRepository extends MongoRepository<Round, String> {
 	
 	@Query(value = "{ 'local': ?0, 'visitor': ?1 }")
 	List<Round> getRoundByLocalVisitor(String local, String visitor);
+	
+	@Query(value = "{ $or: [ {'local': ?0}, {'visitor': ?0} ] }")
+	List<Round> getRoundByTeam(String team, Sort sort);
 }
