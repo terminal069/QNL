@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.StatResultSequence;
 import es.tml.qnl.model.mongo.Team;
@@ -108,25 +109,6 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 		}
 		
 		fifoQueue.push(result);
-	}
-
-	private enum Result {
-		
-		A("A"),
-		B("B"),
-		C("C");
-		
-		private String value;
-		
-		private Result(String value) {
-			
-			this.value = value;
-		}
-		
-		public String toString() {
-			
-			return this.value;
-		}
 	}
 
 }
