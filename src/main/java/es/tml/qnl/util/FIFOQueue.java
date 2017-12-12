@@ -10,7 +10,7 @@ public class FIFOQueue<T> {
 
 	private int size;
 	
-	private List<T> queue;
+	private List<T> queue = new ArrayList<>();
 	
 	public void setSize(int size) {
 		
@@ -19,7 +19,6 @@ public class FIFOQueue<T> {
 		}
 		
 		this.size = size;
-		queue = new ArrayList<>(size);
 	}
 	
 	public List<T> getQueue() {
@@ -27,12 +26,12 @@ public class FIFOQueue<T> {
 		return queue;
 	}
 	
-	public T getFirst() {
+	public T getTail() {
 		
 		return queue.size() == 0 ? null : queue.get(0);
 	}
 	
-	public T getLast() {
+	public T getHead() {
 		
 		return queue.size() == 0 ? null : queue.get(queue.size() - 1);
 	}
@@ -54,6 +53,19 @@ public class FIFOQueue<T> {
 	public int getQueueSize() {
 		
 		return queue.size();
+	}
+	
+	public String toStringFromHeadToTail() {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		if (queue != null) {
+			queue.forEach(element -> {
+				sb.insert(0, element.toString());
+			});
+		}
+		
+		return sb.toString();
 	}
 	
 }

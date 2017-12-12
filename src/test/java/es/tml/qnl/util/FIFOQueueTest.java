@@ -13,6 +13,13 @@ public class FIFOQueueTest {
 
 	private FIFOQueue<String> fifo = new FIFOQueue<>();
 	
+	private String elementOne = "one";
+	private String elementTwo = "two";
+	private String elementThree = "three";
+	private String elementFour = "four";
+	private String elementFive = "five";
+	private String elementSix = "six";
+	
 	@Before
 	public void before() {
 		
@@ -24,8 +31,8 @@ public class FIFOQueueTest {
 		
 		fifo.clear();
 		
-		assertNull(fifo.getFirst());
-		assertNull(fifo.getLast());
+		assertNull(fifo.getTail());
+		assertNull(fifo.getHead());
 	}
 	
 	@Test
@@ -33,9 +40,9 @@ public class FIFOQueueTest {
 		
 		fifo.clear();
 		
-		fifo.push("one");
-		fifo.push("two");
-		fifo.push("three");
+		fifo.push(elementOne);
+		fifo.push(elementTwo);
+		fifo.push(elementThree);
 		
 		assertEquals(fifo.getQueueSize(), 3);
 		
@@ -49,11 +56,10 @@ public class FIFOQueueTest {
 		
 		fifo.clear();
 		
-		String element = "element";
-		fifo.push(element);
+		fifo.push(elementOne);
 		
-		assertEquals(fifo.getFirst(), element);
-		assertEquals(fifo.getLast(), element);
+		assertEquals(fifo.getTail(), elementOne);
+		assertEquals(fifo.getHead(), elementOne);
 	}
 	
 	@Test
@@ -61,14 +67,11 @@ public class FIFOQueueTest {
 		
 		fifo.clear();
 		
-		String elementOne = "one";
-		String elementTwo = "two";
-		
 		fifo.push(elementOne);
 		fifo.push(elementTwo);
 		
-		assertEquals(fifo.getFirst(), elementTwo);
-		assertEquals(fifo.getLast(), elementOne);
+		assertEquals(fifo.getTail(), elementTwo);
+		assertEquals(fifo.getHead(), elementOne);
 	}
 	
 	@Test
@@ -76,25 +79,36 @@ public class FIFOQueueTest {
 		
 		fifo.clear();
 		
-		String elementOne = "one";
-		String elementTwo = "two";
-		String elementThree = "three";
-		String elementFour = "four";
-		String elementFive = "five";
-		String elementSix = "six";
-		
 		fifo.push(elementOne);
 		fifo.push(elementTwo);
 		fifo.push(elementThree);
 		fifo.push(elementFour);
 		fifo.push(elementFive);
 		
-		assertEquals(fifo.getLast(), elementOne);
+		assertEquals(fifo.getHead(), elementOne);
 		assertEquals(fifo.getQueueSize(), 5);
 		
 		fifo.push(elementSix);
 		
-		assertEquals(fifo.getLast(), elementTwo);
+		assertEquals(fifo.getHead(), elementTwo);
 		assertEquals(fifo.getQueueSize(), 5);
+	}
+	
+	@Test
+	public void givenThreeElementsWhenToStringThenAllElementsArePrinted() {
+		
+		fifo.clear();
+		
+		fifo.push(elementOne);
+		fifo.push(elementTwo);
+		fifo.push(elementThree);
+		
+		String threeElementsLiked = new StringBuffer()
+				.append(elementOne)
+				.append(elementTwo)
+				.append(elementThree)
+				.toString();
+		
+		assertEquals(fifo.toStringFromHeadToTail(), threeElementsLiked);
 	}
 }

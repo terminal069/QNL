@@ -56,11 +56,11 @@ public class AVsBServiceImpl implements AVsBService {
 		if (round.getLocalRes() > round.getVisitorRes()) {
 			statAVsB.setLocalWinner(statAVsB.getLocalWinner() + 1);
 		}
-		else if (round.getLocalRes() < round.getVisitorRes()) {
-			statAVsB.setVisitorWinner(statAVsB.getVisitorWinner() + 1);
+		else if (round.getLocalRes() == round.getVisitorRes()) {
+			statAVsB.setTied(statAVsB.getTied() + 1);
 		}
 		else {
-			statAVsB.setTied(statAVsB.getTied() + 1);
+			statAVsB.setVisitorWinner(statAVsB.getVisitorWinner() + 1);
 		}
 		
 		statAVsBRepository.save(statAVsB);
