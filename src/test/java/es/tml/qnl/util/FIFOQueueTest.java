@@ -3,6 +3,8 @@ package es.tml.qnl.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +38,7 @@ public class FIFOQueueTest {
 	}
 	
 	@Test
-	public void givenThreeElementsPushedWhenClearQueueThenQueueWithZeroSize() {
+	public void givenThreeElementsPushedWhenClearQueueThenQueueHasZeroSize() {
 		
 		fifo.clear();
 		
@@ -44,11 +46,11 @@ public class FIFOQueueTest {
 		fifo.push(elementTwo);
 		fifo.push(elementThree);
 		
-		assertEquals(fifo.getQueueSize(), 3);
+		assertEquals(3, fifo.getQueueSize());
 		
 		fifo.clear();
 		
-		assertEquals(fifo.getQueueSize(), 0);
+		assertEquals(0, fifo.getQueueSize());
 	}
 	
 	@Test
@@ -58,8 +60,8 @@ public class FIFOQueueTest {
 		
 		fifo.push(elementOne);
 		
-		assertEquals(fifo.getTail(), elementOne);
-		assertEquals(fifo.getHead(), elementOne);
+		assertEquals(elementOne, fifo.getTail());
+		assertEquals(elementOne, fifo.getHead());
 	}
 	
 	@Test
@@ -70,8 +72,8 @@ public class FIFOQueueTest {
 		fifo.push(elementOne);
 		fifo.push(elementTwo);
 		
-		assertEquals(fifo.getTail(), elementTwo);
-		assertEquals(fifo.getHead(), elementOne);
+		assertEquals(elementTwo, fifo.getTail());
+		assertEquals(elementOne, fifo.getHead());
 	}
 	
 	@Test
@@ -85,13 +87,13 @@ public class FIFOQueueTest {
 		fifo.push(elementFour);
 		fifo.push(elementFive);
 		
-		assertEquals(fifo.getHead(), elementOne);
-		assertEquals(fifo.getQueueSize(), 5);
+		assertEquals(elementOne, fifo.getHead());
+		assertEquals(5, fifo.getQueueSize());
 		
 		fifo.push(elementSix);
 		
-		assertEquals(fifo.getHead(), elementTwo);
-		assertEquals(fifo.getQueueSize(), 5);
+		assertEquals(elementTwo, fifo.getHead());
+		assertEquals(5, fifo.getQueueSize());
 	}
 	
 	@Test
@@ -109,6 +111,28 @@ public class FIFOQueueTest {
 				.append(elementThree)
 				.toString();
 		
-		assertEquals(fifo.toStringFromHeadToTail(), threeElementsLiked);
+		assertEquals(threeElementsLiked, fifo.toStringFromHeadToTail());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void settingSizeOfQueueToZeroThenThrowsException() {
+		
+		fifo.clear();
+		
+		fifo.setSize(0);
+	}
+	
+	@Test
+	public void givenThreeElementsWhenGetQueueThenQueueHasThreeElements() {
+		
+		fifo.clear();
+		
+		fifo.push(elementOne);
+		fifo.push(elementTwo);
+		fifo.push(elementThree);
+		
+		List<String> queue = fifo.getQueue();
+		
+		assertEquals(3, queue.size());
 	}
 }
