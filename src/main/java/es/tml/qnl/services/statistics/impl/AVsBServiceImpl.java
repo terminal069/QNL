@@ -11,7 +11,9 @@ import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatAVsBRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.statistics.AVsBService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class AVsBServiceImpl implements AVsBService {
 
@@ -27,6 +29,8 @@ public class AVsBServiceImpl implements AVsBService {
 	@Override
 	public void calculateAVsB() {
 		
+		log.info("------------------- START (calculateAVsB) -------------------");
+		
 		// Delete data from statAVsB repository
 		statAVsBRepository.deleteAll();
 		
@@ -36,6 +40,8 @@ public class AVsBServiceImpl implements AVsBService {
 				teamRepository.findAll()
 					.forEach(visitor -> searchRounds(local.getName(), visitor.getName()));
 			});
+		
+		log.info("-------------------  END (calculateAVsB)  -------------------");
 	}
 
 	private void searchRounds(String local, String visitor) {

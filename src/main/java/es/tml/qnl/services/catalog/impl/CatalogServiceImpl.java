@@ -13,13 +13,14 @@ import es.tml.qnl.beans.catalog.GetRoundRequest;
 import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
-import es.tml.qnl.model.mongo.Season;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import es.tml.qnl.services.catalog.CatalogService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
@@ -38,6 +39,8 @@ public class CatalogServiceImpl implements CatalogService {
 	@Override
 	public void loadData(LoadDataRequest request) {
 		
+		log.info("------------------- START (loadData) -------------------");
+		
 		// Set filter in request
 		if (request.getFromSeasonCode() == null) {
 			request.setFromSeasonCode(Integer.MIN_VALUE);
@@ -54,21 +57,16 @@ public class CatalogServiceImpl implements CatalogService {
 			.orElse(Collections.emptyList())
 			.stream()
 			.forEach(season -> {
-				processData(request.getLeagueCode(), season);
+				catalogDataParserService.parseDataFromUrl(request.getLeagueCode(), season);
 			});
-	}
-
-	private void processData(String leagueCode, Season season) {
 		
-		// Parse data from league
-		catalogDataParserService.parseDataFromUrl(leagueCode, season);
-		
-		// Save parsed data into DB
-		
+		log.info("-------------------  END (loadData)  -------------------");
 	}
 
 	@Override
 	public List<GetRoundResponse> getRound(GetRoundRequest request) {
+		
+		log.info("------------------- START (getRound) -------------------");
 		
 		List<GetRoundResponse> response = new ArrayList<>();
 		
@@ -92,11 +90,15 @@ public class CatalogServiceImpl implements CatalogService {
 						round.getVisitorPoints()));
 			});
 		
+		log.info("-------------------  END (getRound)  -------------------");
+		
 		return response;
 	}
 
 	@Override
 	public List<GetTeamsResponse> getTeams() {
+		
+		log.info("------------------- START (getTeams) -------------------");
 		
 		List<GetTeamsResponse> response = new ArrayList<>();
 		
@@ -105,6 +107,8 @@ public class CatalogServiceImpl implements CatalogService {
 			.forEach(team -> {
 				response.add(new GetTeamsResponse(team.getName()));
 			});
+		
+		log.info("-------------------  END (getTeams)  -------------------");
 		
 		return response;
 	}

@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 
 	private static final String QNL_DATAPARSER_CLASSTAG_ROUND = "qnl.dataParser.classTag.round";
+	private static final String QNL_DATAPARSER_CLASSTAG_ROUNDPREFIX = "qnl.dataParser.classTag.roundPrefix";
 	private static final String QNL_DATAPARSER_CLASSTAG_RESULT = "qnl.dataParser.classTag.result";
 	private static final String QNL_DATAPARSER_CLASSTAG_LOCAL = "qnl.dataParser.classTag.local";
 	private static final String QNL_DATAPARSER_CLASSTAG_VISITOR = "qnl.dataParser.classTag.visitor";
@@ -38,6 +39,9 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	
 	@Value("${" + QNL_DATAPARSER_CLASSTAG_ROUND + "}")
 	private String roundClassTag;
+	
+	@Value("${" + QNL_DATAPARSER_CLASSTAG_ROUNDPREFIX + "}")
+	private String roundPrefix;
 
 	@Value("${" + QNL_DATAPARSER_CLASSTAG_RESULT + "}")
 	private String resultClassTag;
@@ -77,7 +81,6 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	@Override
 	public void parseDataFromUrl(String leagueCode, Season season) {
 		
-		// Initialize
 		initialize(leagueCode, season.getCode());
 		
 		// Delete old data to be parsed
@@ -118,8 +121,8 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	private void parseRound(Element roundElement) {
 		
 		roundElement.classNames().forEach(className -> {
-			if (className.startsWith("ij")) {
-				roundNumber = Integer.parseInt(className.substring(2));
+			if (className.startsWith(roundPrefix)) {
+				roundNumber = Integer.parseInt(className.substring(roundPrefix.length()));
 			}
 		});
 		
