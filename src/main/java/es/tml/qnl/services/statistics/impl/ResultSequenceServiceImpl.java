@@ -23,6 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ResultSequenceServiceImpl implements ResultSequenceService {
 
+	private static final String SEASON_CODE = "seasonCode";
+	private static final String ROUND_NUMBER = "roundNumber";
+	
 	@Autowired
 	private StatResultSequenceRepository statResultSequenceRepository;
 	
@@ -61,7 +64,7 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 		log.info("Performing iteration with a sequence of {} elements", iterationNumber);
 		
 		teams.forEach(team -> {
-			roundRepository.getRoundByTeam(team.getName(), new Sort("seasonCode", "roundNumber")).forEach(round -> {
+			roundRepository.getRoundByTeam(team.getName(), new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
 				Result result = calculateResult(team.getName(), round);
 				calculateSequence(result, iterationNumber);
 			});
