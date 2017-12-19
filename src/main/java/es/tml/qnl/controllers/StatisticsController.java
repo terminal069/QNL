@@ -46,6 +46,8 @@ public class StatisticsController {
 		resultSequenceService.calculateResultSequence(request.getMaxIterations());
 	}
 	
+	@PostMapping(value = "/differenceOfPoints")
+	@ResponseStatus(code = HttpStatus.CREATED)
 	public void differenceOfPoints() {
 		
 		differenceOfPointsService.calculateDifferenceOfPoints();
