@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.tml.qnl.beans.statistics.ResultSequenceRequest;
 import es.tml.qnl.services.statistics.AVsBService;
+import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
 import es.tml.qnl.services.statistics.ResultSequenceService;
 
@@ -31,6 +32,9 @@ public class StatisticsController {
 	
 	@Autowired
 	private DifferenceOfPointsService differenceOfPointsService;
+	
+	@Autowired
+	private DiffPointsWithResSeqService diffPointsWithResSeqService;
 
 	@PostMapping(value = "/aVsB")
 	@ResponseStatus(code = HttpStatus.CREATED)
@@ -51,5 +55,12 @@ public class StatisticsController {
 	public void differenceOfPoints() {
 		
 		differenceOfPointsService.calculateDifferenceOfPoints();
+	}
+	
+	@PostMapping(value = "/diffPointsResSeq")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	public void differenceOfPointsWithResultSequence(@Valid @RequestBody ResultSequenceRequest request) {
+		
+		diffPointsWithResSeqService.calculateDiffPointsWithResSeq(request.getMaxIterations());
 	}
 }

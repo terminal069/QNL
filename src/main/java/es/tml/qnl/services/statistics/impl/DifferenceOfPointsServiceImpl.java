@@ -19,18 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService {
 
 	private static final String QNL_POINTS_WIN = "qnl.points.win";
-	private static final String QNL_POINTS_DRAW = "qnl.points.draw";
-	private static final String QNL_POINTS_LOSE = "qnl.points.lose";
 	
 	@Value("${" + QNL_POINTS_WIN + "}")
 	private Integer win;
 	
-	@Value("${" + QNL_POINTS_DRAW + "}")
-	private Integer draw;
-	
-	@Value("${" + QNL_POINTS_LOSE + "}")
-	private Integer lose;
-
 	@Autowired
 	private StatDifferenceOfPointsRepository statDifferenceOfPointsRepository;
 	
