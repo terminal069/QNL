@@ -66,7 +66,7 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 		teams.forEach(team -> {
 			roundRepository.getRoundByTeam(team.getName(), new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
 				Result result = calculateResult(team.getName(), round);
-				calculateSequence(result, iterationNumber);
+				calculateSequence(round, result, iterationNumber);
 			});
 		});
 		
@@ -88,9 +88,10 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 		return result;
 	}
 	
-	private void calculateSequence(Result result, int iterationNumber) {
+	private void calculateSequence(Round round, Result result, int iterationNumber) {
 		
-		if (fifoQueue.getQueueSize() == iterationNumber) {
+		if (fifoQueue.getQueueSize() == iterationNumber
+				&& round.getRoundNumber() > iterationNumber) {
 			
 			String sequence = fifoQueue.toStringFromHeadToTail();
 			

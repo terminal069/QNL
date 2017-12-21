@@ -74,7 +74,7 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 		teams.forEach(team -> {
 			roundRepository.getRoundByTeam(team.getName(), new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
 				Result result = calculateResult(team.getName(), round);
-				calculateDiffAndSequence(round, iterationNumber, result);
+				calculateDifferenceAndSequence(round, iterationNumber, result);
 			});
 		});
 	}
@@ -95,25 +95,13 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 		return result;
 	}
 	
-	private void calculateDiffAndSequence(Round round, int iterationNumber, Result result) {
+	private void calculateDifferenceAndSequence(Round round, int iterationNumber, Result result) {
 		
-		if (fifoQueue.getQueueSize() == iterationNumber) {
+		if (fifoQueue.getQueueSize() == iterationNumber
+				&& round.getRoundNumber() > iterationNumber) {
 			
-			int localPoints = round.getLocalPoints();
-			int visitorPoints = round.getVisitorPoints();
-			int difference;
+			int difference = getDifferenceBeforeMatch(round);
 			String sequence = fifoQueue.toStringFromHeadToTail();
-			
-			// Get difference before match
-			if (round.getLocalRes() - round.getVisitorRes() > 0) {
-				difference = localPoints - visitorPoints - win;
-			}
-			else if (round.getLocalRes() == round.getVisitorRes()) {
-				difference = localPoints - visitorPoints;
-			}
-			else {
-				difference = localPoints - visitorPoints + win;
-			}
 			
 			StatDiffPointsResSeq statDiffPointsResSeq = Optional
 					.ofNullable(statDiffPointsResSeqRepository.findByDifferenceAndSequence(difference, sequence))
@@ -138,6 +126,25 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 		}
 		
 		fifoQueue.push(result);
+	}
+
+	private int getDifferenceBeforeMatch(Round round) {
+		
+		int difference;
+		int localPoints = round.getLocalPoints();
+		int visitorPoints = round.getVisitorPoints();
+		
+		if (round.getLocalRes() - round.getVisitorRes() > 0) {
+			difference = localPoints - visitorPoints - win;
+		}
+		else if (round.getLocalRes() == round.getVisitorRes()) {
+			difference = localPoints - visitorPoints;
+		}
+		else {
+			difference = localPoints - visitorPoints + win;
+		}
+		
+		return difference;
 	}
 
 }
