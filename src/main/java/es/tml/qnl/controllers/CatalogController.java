@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,7 +43,12 @@ public class CatalogController {
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public void loadData(@RequestBody @Valid LoadDataRequest request) {
 		
-		catalogService.loadData(request);
+		if (StringUtils.isEmpty(request.getLeagueCode())) {
+			catalogService.loadAllData();
+		}
+		else {
+			catalogService.loadData(request);
+		}
 	}
 	
 	@GetMapping(value = "/rounds")

@@ -13,6 +13,7 @@ import es.tml.qnl.beans.catalog.GetRoundRequest;
 import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
+import es.tml.qnl.repositories.mongo.LeagueRepository;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
@@ -24,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
+	@Autowired
+	private LeagueRepository leagueRepository;
+	
 	@Autowired
 	private SeasonRepository seasonRepository;
 	
@@ -41,26 +45,21 @@ public class CatalogServiceImpl implements CatalogService {
 		
 		log.info("------------------- START (loadData) -------------------");
 		
-		// Set filter in request
-		if (request.getFromSeasonCode() == null) {
-			request.setFromSeasonCode(Integer.MIN_VALUE);
-		}
-		if (request.getToSeasonCode() == null) {
-			request.setToSeasonCode(Integer.MAX_VALUE);
-		}
-		
-		// Get league data from DB and filter it by season
-		Optional.of(seasonRepository.findByLeagueAndSeasonCodeRank(
-				request.getLeagueCode(),
-				request.getFromSeasonCode(),
-				request.getToSeasonCode()))
-			.orElse(Collections.emptyList())
-			.stream()
-			.forEach(season -> {
-				catalogDataParserService.parseDataFromUrl(request.getLeagueCode(), season);
-			});
+		loadAndParseData(request);
 		
 		log.info("-------------------  END (loadData)  -------------------");
+	}
+	
+	@Override
+	public void loadAllData() {
+		
+		log.info("------------------- START (loadAllData) -------------------");
+		
+		leagueRepository.findAll().forEach(league -> {
+			loadAndParseData(new LoadDataRequest(league.getCode()));
+		});
+		
+		log.info("-------------------  END (loadAllData)  -------------------");
 	}
 
 	@Override
@@ -111,6 +110,28 @@ public class CatalogServiceImpl implements CatalogService {
 		log.info("-------------------  END (getTeams)  -------------------");
 		
 		return response;
+	}
+	
+	private void loadAndParseData(LoadDataRequest request) {
+		
+		// Set filter in request
+		if (request.getFromSeasonCode() == null) {
+			request.setFromSeasonCode(Integer.MIN_VALUE);
+		}
+		if (request.getToSeasonCode() == null) {
+			request.setToSeasonCode(Integer.MAX_VALUE);
+		}
+		
+		// Get league data from DB and filter it by season
+		Optional.of(seasonRepository.findByLeagueAndSeasonCodeRank(
+				request.getLeagueCode(),
+				request.getFromSeasonCode(),
+				request.getToSeasonCode()))
+			.orElse(Collections.emptyList())
+			.stream()
+			.forEach(season -> {
+				catalogDataParserService.parseDataFromUrl(request.getLeagueCode(), season);
+			});
 	}
 
 }

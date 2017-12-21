@@ -1,13 +1,17 @@
 package es.tml.qnl.beans.catalog;
 
-import javax.validation.constraints.NotNull;
-
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
+@RequiredArgsConstructor
 public class LoadDataRequest {
 
-	@NotNull
+	public LoadDataRequest(String leagueCode) {
+		
+		this.leagueCode = leagueCode;
+	}
+	
 	private String leagueCode;
 	
 	private Integer fromSeasonCode;

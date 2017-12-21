@@ -10,6 +10,8 @@ import es.tml.qnl.beans.catalog.LoadDataRequest;
 public interface CatalogService {
 
 	void loadData(LoadDataRequest request);
+	
+	void loadAllData();
 
 	List<GetRoundResponse> getRound(GetRoundRequest request);
 

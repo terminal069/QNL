@@ -81,6 +81,8 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	@Override
 	public void parseDataFromUrl(String leagueCode, Season season) {
 		
+		log.debug("Parsing data from league '{}' and season '{}'", leagueCode, season.getName());
+		
 		initialize(leagueCode, season.getCode());
 		
 		// Delete old data to be parsed
