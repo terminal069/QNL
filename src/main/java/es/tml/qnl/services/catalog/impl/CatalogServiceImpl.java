@@ -13,8 +13,11 @@ import es.tml.qnl.beans.catalog.GetRoundRequest;
 import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
+import es.tml.qnl.model.mongo.Season;
+import es.tml.qnl.model.mongo.SeasonRange;
 import es.tml.qnl.repositories.mongo.LeagueRepository;
 import es.tml.qnl.repositories.mongo.RoundRepository;
+import es.tml.qnl.repositories.mongo.SeasonRangeRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
@@ -30,6 +33,9 @@ public class CatalogServiceImpl implements CatalogService {
 	
 	@Autowired
 	private SeasonRepository seasonRepository;
+	
+	@Autowired
+	private SeasonRangeRepository seasonRangeRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
@@ -89,8 +95,22 @@ public class CatalogServiceImpl implements CatalogService {
 
 		log.info("------------------- START (generateSeasons) -------------------");
 		
+		seasonRepository.deleteAll();
+		
+		List<SeasonRange> seasonsRange = seasonRangeRepository.findAll();
+		
 		leagueRepository.findAll().forEach(league -> {
-			
+			seasonsRange.forEach(seasonRange -> {
+				seasonRepository.save(new Season(
+						seasonRange.getYear(),
+						seasonRange.getSeasonRange(),
+						league.getCode(),
+						new StringBuilder()
+							.append(league.getPrefix())
+							.append(seasonRange.getSeasonRange())
+							.append(league.getSuffix())
+							.toString()));
+			});
 		});
 		
 		log.info("-------------------  END (generateSeasons)  -------------------");
