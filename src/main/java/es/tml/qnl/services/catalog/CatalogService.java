@@ -16,4 +16,6 @@ public interface CatalogService {
 	List<GetRoundResponse> getRound(GetRoundRequest request);
 
 	List<GetTeamsResponse> getTeams();
+
+	void generateSeasons();
 }

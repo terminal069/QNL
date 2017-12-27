@@ -5,11 +5,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import es.tml.qnl.data.Teams;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.StatAVsB;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatAVsBRepository;
-import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.statistics.AVsBService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,9 +19,6 @@ public class AVsBServiceImpl implements AVsBService {
 
 	@Autowired
 	private RoundRepository roundRepository;
-	
-	@Autowired
-	private TeamRepository teamRepository;
 	
 	@Autowired
 	private StatAVsBRepository statAVsBRepository;
@@ -35,16 +32,18 @@ public class AVsBServiceImpl implements AVsBService {
 		statAVsBRepository.deleteAll();
 		
 		// Perform combinatory of all teams
-		teamRepository.findAll()
-			.forEach(local -> {
-				teamRepository.findAll()
-					.forEach(visitor -> searchRounds(local.getName(), visitor.getName()));
+		Teams.getTeams().forEach(local -> {
+			Teams.getTeams().forEach(visitor -> {
+				searchRounds(local, visitor);
 			});
+		});
 		
 		log.info("-------------------  END (calculateAVsB)  -------------------");
 	}
 
 	private void searchRounds(String local, String visitor) {
+		
+		log.debug("Performing combination of {} - {}", local, visitor);
 		
 		if (!local.equals(visitor)) {
 			roundRepository.getRoundByLocalVisitor(local, visitor)

@@ -61,6 +61,40 @@ public class CatalogServiceImpl implements CatalogService {
 		
 		log.info("-------------------  END (loadAllData)  -------------------");
 	}
+	
+	private void loadAndParseData(LoadDataRequest request) {
+		
+		// Set filter in request
+		if (request.getFromSeasonCode() == null) {
+			request.setFromSeasonCode(Integer.MIN_VALUE);
+		}
+		if (request.getToSeasonCode() == null) {
+			request.setToSeasonCode(Integer.MAX_VALUE);
+		}
+		
+		// Get league data from DB and filter it by season
+		Optional.of(seasonRepository.findByLeagueAndSeasonCodeRank(
+				request.getLeagueCode(),
+				request.getFromSeasonCode(),
+				request.getToSeasonCode()))
+			.orElse(Collections.emptyList())
+			.stream()
+			.forEach(season -> {
+				catalogDataParserService.parseDataFromUrl(request.getLeagueCode(), season);
+			});
+	}
+	
+	@Override
+	public void generateSeasons() {
+
+		log.info("------------------- START (generateSeasons) -------------------");
+		
+		leagueRepository.findAll().forEach(league -> {
+			
+		});
+		
+		log.info("-------------------  END (generateSeasons)  -------------------");
+	}
 
 	@Override
 	public List<GetRoundResponse> getRound(GetRoundRequest request) {
@@ -112,26 +146,4 @@ public class CatalogServiceImpl implements CatalogService {
 		return response;
 	}
 	
-	private void loadAndParseData(LoadDataRequest request) {
-		
-		// Set filter in request
-		if (request.getFromSeasonCode() == null) {
-			request.setFromSeasonCode(Integer.MIN_VALUE);
-		}
-		if (request.getToSeasonCode() == null) {
-			request.setToSeasonCode(Integer.MAX_VALUE);
-		}
-		
-		// Get league data from DB and filter it by season
-		Optional.of(seasonRepository.findByLeagueAndSeasonCodeRank(
-				request.getLeagueCode(),
-				request.getFromSeasonCode(),
-				request.getToSeasonCode()))
-			.orElse(Collections.emptyList())
-			.stream()
-			.forEach(season -> {
-				catalogDataParserService.parseDataFromUrl(request.getLeagueCode(), season);
-			});
-	}
-
 }

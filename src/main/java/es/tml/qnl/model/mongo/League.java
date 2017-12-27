@@ -11,4 +11,8 @@ public class League {
 	private String code;
 	
 	private String name;
+	
+	private String prefix;
+	
+	private String suffix;
 }

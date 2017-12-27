@@ -1,6 +1,5 @@
 package es.tml.qnl.services.statistics.impl;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -8,13 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import es.tml.qnl.data.Teams;
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.StatResultSequence;
-import es.tml.qnl.model.mongo.Team;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatResultSequenceRepository;
-import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.statistics.ResultSequenceService;
 import es.tml.qnl.util.FIFOQueue;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +31,7 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 	private RoundRepository roundRepository;
 	
 	@Autowired
-	private TeamRepository teamRepository;
-	
-	@Autowired
 	private FIFOQueue<Result> fifoQueue;
-	
-	private List<Team> teams;
 	
 	@Override
 	public void calculateResultSequence(int maxIterations) {
@@ -46,8 +39,6 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 		log.info("------------------- START (calculateResultSequence) -------------------");
 		
 		statResultSequenceRepository.deleteAll();
-		
-		teams = teamRepository.findAll();
 		
 		// Iterate and calculate results for each sequence
 		IntStream.rangeClosed(1, maxIterations).forEach(iterationNumber -> {
@@ -63,9 +54,9 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 		
 		log.info("Performing iteration with a sequence of {} elements", iterationNumber);
 		
-		teams.forEach(team -> {
-			roundRepository.getRoundByTeam(team.getName(), new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
-				Result result = calculateResult(team.getName(), round);
+		Teams.getTeams().forEach(team -> {
+			roundRepository.getRoundByTeam(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
+				Result result = calculateResult(team, round);
 				calculateSequence(round, result, iterationNumber);
 			});
 		});

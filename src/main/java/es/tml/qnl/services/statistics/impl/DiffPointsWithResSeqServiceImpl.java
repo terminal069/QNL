@@ -1,6 +1,5 @@
 package es.tml.qnl.services.statistics.impl;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -9,13 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import es.tml.qnl.data.Teams;
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.StatDiffPointsResSeq;
-import es.tml.qnl.model.mongo.Team;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatDiffPointsResSeqRepository;
-import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.util.FIFOQueue;
 import lombok.extern.slf4j.Slf4j;
@@ -36,15 +34,10 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 	private StatDiffPointsResSeqRepository statDiffPointsResSeqRepository;
 	
 	@Autowired
-	private TeamRepository teamRepository;
-	
-	@Autowired
 	private RoundRepository roundRepository;
 	
 	@Autowired
 	private FIFOQueue<Result> fifoQueue;
-	
-	private List<Team> teams;
 	
 	@Override
 	public void calculateDiffPointsWithResSeq(int maxIterations) {
@@ -53,9 +46,6 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 		
 		// Delete all data from repository
 		statDiffPointsResSeqRepository.deleteAll();
-		
-		// Get all teams
-		teams = teamRepository.findAll();
 		
 		// Iterate and calculate results for each sequence
 		IntStream.rangeClosed(1, maxIterations).forEach(iterationNumber -> {
@@ -71,9 +61,9 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 		
 		log.info("Performing iteration with a sequence of {} elements", iterationNumber);
 		
-		teams.forEach(team -> {
-			roundRepository.getRoundByTeam(team.getName(), new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
-				Result result = calculateResult(team.getName(), round);
+		Teams.getTeams().forEach(team -> {
+			roundRepository.getRoundByTeam(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
+				Result result = calculateResult(team, round);
 				calculateDifferenceAndSequence(round, iterationNumber, result);
 			});
 		});

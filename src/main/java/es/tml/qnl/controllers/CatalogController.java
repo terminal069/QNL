@@ -51,6 +51,13 @@ public class CatalogController {
 		}
 	}
 	
+	@PostMapping(value = "/seasons")
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public void generateSeasons() {
+		
+		catalogService.generateSeasons();
+	}
+	
 	@GetMapping(value = "/rounds")
 	@ResponseStatus(value = HttpStatus.OK)
 	public List<GetRoundResponse> getRounds(@RequestParam Map<String, String> requestParams) {
@@ -69,4 +76,5 @@ public class CatalogController {
 		
 		return catalogService.getTeams();
 	}
+	
 }
