@@ -22,9 +22,7 @@ import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
 import es.tml.qnl.services.catalog.CatalogDataParserService;
 import es.tml.qnl.services.catalog.CatalogService;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
@@ -47,25 +45,39 @@ public class CatalogServiceImpl implements CatalogService {
 	private CatalogDataParserService catalogDataParserService;
 	
 	@Override
+	public void generateSeasons() {
+
+		seasonRepository.deleteAll();
+		
+		List<SeasonRange> seasonsRange = seasonRangeRepository.findAll();
+		
+		leagueRepository.findAll().forEach(league -> {
+			seasonsRange.forEach(seasonRange -> {
+				seasonRepository.save(new Season(
+						seasonRange.getYear(),
+						seasonRange.getSeasonRange(),
+						league.getCode(),
+						new StringBuilder()
+							.append(league.getPrefix())
+							.append(seasonRange.getSeasonRange())
+							.append(league.getSuffix())
+							.toString()));
+			});
+		});
+	}
+	
+	@Override
 	public void loadData(LoadDataRequest request) {
 		
-		log.info("------------------- START (loadData) -------------------");
-		
 		loadAndParseData(request);
-		
-		log.info("-------------------  END (loadData)  -------------------");
 	}
 	
 	@Override
 	public void loadAllData() {
 		
-		log.info("------------------- START (loadAllData) -------------------");
-		
 		leagueRepository.findAll().forEach(league -> {
 			loadAndParseData(new LoadDataRequest(league.getCode()));
 		});
-		
-		log.info("-------------------  END (loadAllData)  -------------------");
 	}
 	
 	private void loadAndParseData(LoadDataRequest request) {
@@ -91,35 +103,7 @@ public class CatalogServiceImpl implements CatalogService {
 	}
 	
 	@Override
-	public void generateSeasons() {
-
-		log.info("------------------- START (generateSeasons) -------------------");
-		
-		seasonRepository.deleteAll();
-		
-		List<SeasonRange> seasonsRange = seasonRangeRepository.findAll();
-		
-		leagueRepository.findAll().forEach(league -> {
-			seasonsRange.forEach(seasonRange -> {
-				seasonRepository.save(new Season(
-						seasonRange.getYear(),
-						seasonRange.getSeasonRange(),
-						league.getCode(),
-						new StringBuilder()
-							.append(league.getPrefix())
-							.append(seasonRange.getSeasonRange())
-							.append(league.getSuffix())
-							.toString()));
-			});
-		});
-		
-		log.info("-------------------  END (generateSeasons)  -------------------");
-	}
-
-	@Override
 	public List<GetRoundResponse> getRound(GetRoundRequest request) {
-		
-		log.info("------------------- START (getRound) -------------------");
 		
 		List<GetRoundResponse> response = new ArrayList<>();
 		
@@ -143,15 +127,11 @@ public class CatalogServiceImpl implements CatalogService {
 						round.getVisitorPoints()));
 			});
 		
-		log.info("-------------------  END (getRound)  -------------------");
-		
 		return response;
 	}
 
 	@Override
 	public List<GetTeamsResponse> getTeams() {
-		
-		log.info("------------------- START (getTeams) -------------------");
 		
 		List<GetTeamsResponse> response = new ArrayList<>();
 		
@@ -160,8 +140,6 @@ public class CatalogServiceImpl implements CatalogService {
 			.forEach(team -> {
 				response.add(new GetTeamsResponse(team.getName()));
 			});
-		
-		log.info("-------------------  END (getTeams)  -------------------");
 		
 		return response;
 	}

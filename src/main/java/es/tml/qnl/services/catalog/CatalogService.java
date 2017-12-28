@@ -9,6 +9,8 @@ import es.tml.qnl.beans.catalog.LoadDataRequest;
 
 public interface CatalogService {
 
+	void generateSeasons();
+	
 	void loadData(LoadDataRequest request);
 	
 	void loadAllData();
@@ -16,6 +18,5 @@ public interface CatalogService {
 	List<GetRoundResponse> getRound(GetRoundRequest request);
 
 	List<GetTeamsResponse> getTeams();
-
-	void generateSeasons();
+	
 }

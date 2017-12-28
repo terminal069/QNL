@@ -12,9 +12,7 @@ import es.tml.qnl.model.mongo.StatDifferenceOfPoints;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatDifferenceOfPointsRepository;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService {
 
@@ -32,8 +30,6 @@ public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService 
 	@Override
 	public void calculateDifferenceOfPoints() {
 		
-		log.info("------------------- START (calculateDifferenceOfPoints) -------------------");
-		
 		// Delete difference of points statistics data from repository
 		statDifferenceOfPointsRepository.deleteAll();
 		
@@ -41,8 +37,6 @@ public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService 
 		roundRepository.findAll().forEach(round -> {
 			calculateResults(round);
 		});
-		
-		log.info("-------------------  END (calculateDifferenceOfPoints)  -------------------");
 	}
 
 	private void calculateResults(Round round) {

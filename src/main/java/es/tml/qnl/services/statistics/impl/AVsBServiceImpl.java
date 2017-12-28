@@ -26,8 +26,6 @@ public class AVsBServiceImpl implements AVsBService {
 	@Override
 	public void calculateAVsB() {
 		
-		log.info("------------------- START (calculateAVsB) -------------------");
-		
 		// Delete data from statAVsB repository
 		statAVsBRepository.deleteAll();
 		
@@ -37,8 +35,6 @@ public class AVsBServiceImpl implements AVsBService {
 				searchRounds(local, visitor);
 			});
 		});
-		
-		log.info("-------------------  END (calculateAVsB)  -------------------");
 	}
 
 	private void searchRounds(String local, String visitor) {

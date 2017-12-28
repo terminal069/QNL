@@ -36,8 +36,6 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 	@Override
 	public void calculateResultSequence(int maxIterations) {
 
-		log.info("------------------- START (calculateResultSequence) -------------------");
-		
 		statResultSequenceRepository.deleteAll();
 		
 		// Iterate and calculate results for each sequence
@@ -46,8 +44,6 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 			fifoQueue.setSize(iterationNumber);
 			performIteration(iterationNumber);
 		});
-		
-		log.info("-------------------  END (calculateResultSequence)  -------------------");
 	}
 	
 	private void performIteration(int iterationNumber) {

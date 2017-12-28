@@ -42,8 +42,6 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 	@Override
 	public void calculateDiffPointsWithResSeq(int maxIterations) {
 
-		log.info("------------------- START (calculateDiffPointsWithResSeq) -------------------");
-		
 		// Delete all data from repository
 		statDiffPointsResSeqRepository.deleteAll();
 		
@@ -53,8 +51,6 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 			fifoQueue.setSize(iterationNumber);
 			performIteration(iterationNumber);
 		});
-		
-		log.info("-------------------  END (calculateDiffPointsWithResSeq)  -------------------");
 	}
 	
 	private void performIteration(int iterationNumber) {
