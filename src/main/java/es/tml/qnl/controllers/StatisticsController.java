@@ -20,7 +20,7 @@ import es.tml.qnl.services.statistics.ResultSequenceService;
 @RestController
 @RequestMapping(
 		consumes = { MediaType.APPLICATION_JSON_VALUE },
-		produces = {MediaType.APPLICATION_JSON_VALUE},
+		produces = { MediaType.APPLICATION_JSON_VALUE },
 		path = "/qnl/statistics")
 public class StatisticsController {
 	

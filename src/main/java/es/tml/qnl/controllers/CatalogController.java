@@ -26,7 +26,7 @@ import es.tml.qnl.services.catalog.CatalogService;
 @RestController
 @RequestMapping(
 		consumes = { MediaType.APPLICATION_JSON_VALUE },
-		produces = {MediaType.APPLICATION_JSON_VALUE},
+		produces = { MediaType.APPLICATION_JSON_VALUE },
 		path = "/qnl/catalog")
 public class CatalogController {
 	

@@ -1,4 +1,4 @@
-package es.tml.qnl.services.catalog.impl;
+package es.tml.qnl.util;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.exceptions.QNLException;
@@ -19,12 +19,11 @@ import es.tml.qnl.model.mongo.Season;
 import es.tml.qnl.model.mongo.Team;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
-import es.tml.qnl.services.catalog.CatalogDataParserService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
-public class CatalogDataParserServiceImpl implements CatalogDataParserService {
+@Component
+public class CatalogDataParser {
 
 	private static final String QNL_DATAPARSER_CLASSTAG_ROUND = "qnl.dataParser.classTag.round";
 	private static final String QNL_DATAPARSER_CLASSTAG_ROUNDPREFIX = "qnl.dataParser.classTag.roundPrefix";
@@ -78,7 +77,6 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 	private String leagueCode;
 	private Map<String, Integer> globalPoints = new HashMap<>();
 	
-	@Override
 	public void parseDataFromUrl(String leagueCode, Season season) {
 		
 		log.debug("Parsing data from league '{}' and season '{}'", leagueCode, season.getName());
@@ -178,11 +176,11 @@ public class CatalogDataParserServiceImpl implements CatalogDataParserService {
 		return resA > resB ? win : (resA == resB ? draw : lose);
 	}
 	
-	private void addGlobalPoints(String team, int localRoundPoints) {
+	private void addGlobalPoints(String team, int roundPoints) {
 		
 		int points = globalPoints.get(team) == null ? 0 : globalPoints.get(team);
 		
-		globalPoints.put(team, points + localRoundPoints);
+		globalPoints.put(team, points + roundPoints);
 	}
 
 }

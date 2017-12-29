@@ -5,8 +5,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
 
 @Data
-@Document(collection = "seasonRange")
-public class SeasonRange {
+@Document(collection = "seasonData")
+public class SeasonData {
 
 	private int year;
 	
