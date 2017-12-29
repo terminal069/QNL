@@ -92,6 +92,11 @@ public class CatalogDataParser {
 				parseRound(roundElement);
 			});
 	}
+	
+	public void parseCurrentDataFromUrl(String leagueCode, Season season, int round) {
+		
+		log.debug("Parsing data from league '{}' and season '{}' to round '{}'", leagueCode, season.getName(), round);
+	}
 
 	private void initialize(String leagueCode, int seasonCode) {
 		

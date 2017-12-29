@@ -11,4 +11,6 @@ public class SeasonData {
 	private int year;
 	
 	private String seasonRange;
+	
+	private boolean currentSeason;
 }

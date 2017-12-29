@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 public class Prediction {
 
-	private String id;
-	
 	private String local;
 	
 	private String visitor;
