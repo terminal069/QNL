@@ -15,8 +15,10 @@ import org.springframework.stereotype.Component;
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.exceptions.QNLException;
 import es.tml.qnl.model.mongo.Round;
+import es.tml.qnl.model.mongo.RoundPrediction;
 import es.tml.qnl.model.mongo.Season;
 import es.tml.qnl.model.mongo.Team;
+import es.tml.qnl.repositories.mongo.RoundPredictionRepository;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class CatalogDataParser {
 	private static final String QNL_DATAPARSER_CLASSTAG_VISITOR = "qnl.dataParser.classTag.visitor";
 	private static final String QNL_DATAPARSER_CLASSTAG_LOCALRES = "qnl.dataParser.classTag.localRes";
 	private static final String QNL_DATAPARSER_CLASSTAG_VISITORRES = "qnl.dataParser.classTag.visitorRes";
+	private static final String QNL_DATAPARSER_NOT_DISPUTED = "qnl.dataParser.notDisputed";
 	private static final String QNL_POINTS_WIN = "qnl.points.win";
 	private static final String QNL_POINTS_DRAW = "qnl.points.draw";
 	private static final String QNL_POINTS_LOSE = "qnl.points.lose";
@@ -66,11 +69,17 @@ public class CatalogDataParser {
 	@Value("${" + QNL_POINTS_LOSE + "}")
 	private Integer lose;
 	
+	@Value("${" + QNL_DATAPARSER_NOT_DISPUTED + "}")
+	private String notDisputed;
+	
 	@Autowired
 	private TeamRepository teamRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
+	
+	@Autowired
+	private RoundPredictionRepository roundPredictionRepository;
 	
 	private int roundNumber;
 	private int seasonCode;
@@ -84,18 +93,24 @@ public class CatalogDataParser {
 		initialize(leagueCode, season.getCode());
 		
 		// Delete old data to be parsed
-		deleteData();
+		roundRepository.deleteByLeagueAndSeason(leagueCode, seasonCode);
 		
 		// Get document from url and parse it
 		getDocument(season.getUrl())
-			.getElementsByClass(roundClassTag).forEach(roundElement -> {
-				parseRound(roundElement);
-			});
+			.getElementsByClass(roundClassTag)
+			.forEach(roundElement -> parseRound(roundElement));
 	}
 	
-	public void parseCurrentDataFromUrl(String leagueCode, Season season, int round) {
+	public void parsePartialDataFromUrl(String leagueCode, Season season, int fromRound, int toRound) {
 		
-		log.debug("Parsing data from league '{}' and season '{}' to round '{}'", leagueCode, season.getName(), round);
+		log.debug("Parsing data from league '{}' and season '{}', from round {} to round '{}'",
+				leagueCode, season.getName(), fromRound, toRound);
+		
+		initialize(leagueCode, season.getCode());
+		
+		getDocument(season.getUrl())
+			.getElementsByClass(roundClassTag)
+			.forEach(roundElement -> parsePartialRound(roundElement, fromRound, toRound));
 	}
 
 	private void initialize(String leagueCode, int seasonCode) {
@@ -104,11 +119,6 @@ public class CatalogDataParser {
 		this.leagueCode = leagueCode;
 		this.roundNumber = 0;
 		this.globalPoints.clear();
-	}
-
-	private void deleteData() {
-		
-		roundRepository.deleteByLeagueAndSeason(leagueCode, seasonCode);
 	}
 
 	private Document getDocument(String url) {
@@ -186,6 +196,54 @@ public class CatalogDataParser {
 		int points = globalPoints.get(team) == null ? 0 : globalPoints.get(team);
 		
 		globalPoints.put(team, points + roundPoints);
+	}
+	
+	private void parsePartialRound(Element roundElement, int fromRound, int toRound) {
+		
+		roundElement.classNames().forEach(className -> {
+			if (className.startsWith(roundPrefix)) {
+				roundNumber = Integer.parseInt(className.substring(roundPrefix.length()));
+			}
+		});
+		
+		if (roundNumber >= fromRound && roundNumber <= toRound) {
+			roundElement.getElementsByClass(resultClassTag).forEach(resultElement -> {
+				parsePartialResults(resultElement);
+			});
+		}
+	}
+
+	private void parsePartialResults(Element resultElement) {
+		
+		String localResTemp = resultElement.getElementsByClass(localResClassTag).first().text();
+		String visitorResTemp = resultElement.getElementsByClass(visitorResClassTag).first().text();
+		
+		if (!localResTemp.equals(notDisputed) && !visitorResTemp.equals(notDisputed)) {
+		
+			// Calculate round points
+			int localRes = Integer.parseInt(localResTemp);
+			int visitorRes = Integer.parseInt(visitorResTemp);
+			int localRoundPoints = calculatePoints(localRes, visitorRes);
+			int visitorRoundPoints = calculatePoints(visitorRes, localRes);
+			
+			// Add global points
+			String local = resultElement.getElementsByClass(localClassTag).first().text();
+			String visitor = resultElement.getElementsByClass(visitorClassTag).first().text();
+			addGlobalPoints(local, localRoundPoints);
+			addGlobalPoints(visitor, visitorRoundPoints);
+			
+			// Save the round
+			roundPredictionRepository.save(new RoundPrediction(
+					roundNumber,
+					seasonCode,
+					leagueCode,
+					local,
+					visitor,
+					localRes,
+					visitorRes,
+					globalPoints.get(local),
+					globalPoints.get(visitor)));
+		}
 	}
 
 }

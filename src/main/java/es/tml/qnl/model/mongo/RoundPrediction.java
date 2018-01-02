@@ -2,12 +2,14 @@ package es.tml.qnl.model.mongo;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Document(collection = "currentRound")
-public class CurrentRound {
-
+@AllArgsConstructor
+@Document(collection = "roundPrediction")
+public class RoundPrediction {
+	
 	private int roundNumber;
 	
 	private int seasonCode;
@@ -25,4 +27,5 @@ public class CurrentRound {
 	private int localPoints;
 	
 	private int visitorPoints;
+
 }

@@ -14,4 +14,6 @@ public class Season {
 	private String leagueCode;
 	
 	private String url;
+	
+	private boolean currentSeason;
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.beans.prediction.GetPredictionRequest;
 import es.tml.qnl.beans.prediction.GetPredictionResponse;
-import es.tml.qnl.beans.prediction.Prediction;
+import es.tml.qnl.repositories.mongo.RoundPredictionRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.services.prediction.PredictionService;
 import es.tml.qnl.util.CatalogDataParser;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class PredictionServiceImpl implements PredictionService {
 
-	private static final String PIPE = "|";
+	private static final String COLON = ":";
 	
 	@Autowired
 	private CatalogDataParser catalogDataParser;
@@ -30,8 +30,14 @@ public class PredictionServiceImpl implements PredictionService {
 	@Autowired
 	private SeasonRepository seasonRepository;
 	
+	@Autowired
+	private RoundPredictionRepository roundPredictionRepository;
+	
 	@Override
 	public GetPredictionResponse makePrediction(GetPredictionRequest request) {
+		
+		// Delete old data
+		roundPredictionRepository.deleteAll();
 		
 		// Load current data from web
 		loadCurrentData(request);
@@ -46,11 +52,8 @@ public class PredictionServiceImpl implements PredictionService {
 
 	private void loadCurrentData(GetPredictionRequest request) {
 
-		// Group data request by league, season and round
-		List<String> groupedData = groupData(request);
-		
-		// With data grouped, parse round data from web
-		groupedData.forEach(group -> parseData(group));
+		groupData(request) // Group data request by league, season and round
+			.forEach(group -> parseData(group)); // With data grouped, parse round data from web
 	}
 	
 	private List<String> groupData(GetPredictionRequest request) {
@@ -61,9 +64,9 @@ public class PredictionServiceImpl implements PredictionService {
 			.stream()
 			.map(match -> new StringBuilder()
 					.append(match.getLeague())
-					.append(PIPE)
+					.append(COLON)
 					.append(match.getSeason())
-					.append(PIPE)
+					.append(COLON)
 					.append(match.getRound())
 					.toString())
 			.forEach(group -> {
@@ -79,15 +82,16 @@ public class PredictionServiceImpl implements PredictionService {
 	
 	private void parseData(String group) {
 		
-		String[] groupSplitted = group.split(PIPE);
+		String[] groupSplitted = group.split(COLON);
 		String leagueCode = groupSplitted[0];
-		String seasonCode = groupSplitted[1];
-		String round = groupSplitted[2];
+		int seasonCode = Integer.parseInt(groupSplitted[1]);
+		int round = Integer.parseInt(groupSplitted[2]);
 		
-		catalogDataParser.parseCurrentDataFromUrl(
+		catalogDataParser.parsePartialDataFromUrl(
 				leagueCode,
 				seasonRepository.findByLeagueAndSeason(leagueCode, seasonCode),
-				Integer.parseInt(round));
+				1,
+				round);
 	}
 
 }

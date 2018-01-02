@@ -61,7 +61,8 @@ public class CatalogServiceImpl implements CatalogService {
 							.append(league.getPrefix())
 							.append(seasonData.getSeasonRange())
 							.append(league.getSuffix())
-							.toString()));
+							.toString(),
+						seasonData.isCurrentSeason()));
 			});
 		});
 	}
@@ -91,7 +92,7 @@ public class CatalogServiceImpl implements CatalogService {
 		}
 		
 		// Get league data from DB and filter it by season
-		Optional.of(seasonRepository.findByLeagueAndSeasonCodeRank(
+		Optional.of(seasonRepository.findByLeagueAndNotCurrentSeasonAndSeasonCodeRank(
 				request.getLeagueCode(),
 				request.getFromSeasonCode(),
 				request.getToSeasonCode()))

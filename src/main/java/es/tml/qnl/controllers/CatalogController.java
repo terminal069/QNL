@@ -38,6 +38,13 @@ public class CatalogController {
 	
 	@Autowired
 	private CatalogService catalogService;
+	
+	@PostMapping(value = "/seasons")
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public void generateSeasons() {
+		
+		catalogService.generateSeasons();
+	}
 
 	@PostMapping
 	@ResponseStatus(value = HttpStatus.CREATED)
@@ -49,13 +56,6 @@ public class CatalogController {
 		else {
 			catalogService.loadData(request);
 		}
-	}
-	
-	@PostMapping(value = "/seasons")
-	@ResponseStatus(value = HttpStatus.CREATED)
-	public void generateSeasons() {
-		
-		catalogService.generateSeasons();
 	}
 	
 	@GetMapping(value = "/rounds")
