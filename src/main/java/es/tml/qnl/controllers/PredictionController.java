@@ -37,7 +37,7 @@ public class PredictionController {
 			value = "Make a prediction",
 			notes = "This service is used to make a prediction from the matches included in the request")
 	@ApiResponses({
-		@ApiResponse(code = HttpServletResponse.SC_OK, message = "Prediction made correctly"),
+		@ApiResponse(code = HttpServletResponse.SC_OK, message = "Properly made prediction"),
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
 		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
 	})
