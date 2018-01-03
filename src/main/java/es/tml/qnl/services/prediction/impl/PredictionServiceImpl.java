@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.beans.prediction.GetPredictionRequest;
 import es.tml.qnl.beans.prediction.GetPredictionResponse;
+import es.tml.qnl.beans.prediction.Prediction;
 import es.tml.qnl.repositories.mongo.RoundPredictionRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.services.prediction.PredictionService;
@@ -43,11 +44,12 @@ public class PredictionServiceImpl implements PredictionService {
 		loadCurrentData(request);
 		
 		// Make prediction with data collected
+		List<Prediction> predictions = predictor.predict(request.getMatches());
 		
 		// Return prediction
-		GetPredictionResponse response = new GetPredictionResponse();
-		response.setId(request.getId());
-		return response;
+		return new GetPredictionResponse(
+				request.getId(),
+				predictions);
 	}
 
 	private void loadCurrentData(GetPredictionRequest request) {

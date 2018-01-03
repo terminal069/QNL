@@ -2,9 +2,11 @@ package es.tml.qnl.beans.prediction;
 
 import java.math.BigDecimal;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Prediction {
 
 	private String local;
