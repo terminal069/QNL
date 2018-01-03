@@ -29,7 +29,6 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping(
-		consumes = { MediaType.APPLICATION_JSON_VALUE },
 		produces = { MediaType.APPLICATION_JSON_VALUE },
 		path = "/qnl/catalog")
 public class CatalogController {
@@ -43,7 +42,9 @@ public class CatalogController {
 	@Autowired
 	private CatalogService catalogService;
 	
-	@PostMapping(value = "/seasons")
+	@PostMapping(
+			value = "/seasons",
+			consumes = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(value = HttpStatus.CREATED)
 	@ApiOperation(
 			value = "Generate season data",
@@ -58,7 +59,7 @@ public class CatalogController {
 		catalogService.generateSeasons();
 	}
 
-	@PostMapping
+	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(value = HttpStatus.CREATED)
 	@ApiOperation(
 			value = "Load catalog data into repository",

@@ -17,7 +17,6 @@ import es.tml.qnl.services.statistics.AVsBService;
 import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
 import es.tml.qnl.services.statistics.ResultSequenceService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
