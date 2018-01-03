@@ -25,7 +25,6 @@ import io.swagger.annotations.ApiResponses;
 		consumes = { MediaType.APPLICATION_JSON_VALUE },
 		produces = { MediaType.APPLICATION_JSON_VALUE },
 		path = "/qnl/prediction")
-@Api(value = "/qnl/prediction")
 public class PredictionController {
 	
 	@Autowired

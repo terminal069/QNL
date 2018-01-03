@@ -23,7 +23,6 @@ import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.services.catalog.CatalogService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -33,10 +32,6 @@ import io.swagger.annotations.ApiResponses;
 		consumes = { MediaType.APPLICATION_JSON_VALUE },
 		produces = { MediaType.APPLICATION_JSON_VALUE },
 		path = "/qnl/catalog")
-@Api(
-		value = "/qnl/catalog",
-		consumes = MediaType.APPLICATION_JSON_VALUE,
-		produces = MediaType.APPLICATION_JSON_VALUE)
 public class CatalogController {
 	
 	private static final String ROUND_NUMBER = "roundNumber";

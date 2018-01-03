@@ -27,7 +27,6 @@ import io.swagger.annotations.ApiResponses;
 		consumes = { MediaType.APPLICATION_JSON_VALUE },
 		produces = { MediaType.APPLICATION_JSON_VALUE },
 		path = "/qnl/statistics")
-@Api(value = "/qnl/statistics")
 public class StatisticsController {
 	
 	@Autowired
