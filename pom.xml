@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.tml.qnl</groupId>
 	<artifactId>qnl</artifactId>
-	<version>0.11.2-SNAPSHOT</version>
+	<version>0.11.3-SNAPSHOT</version>
 	<name>QNL</name>
 
 	<properties>
@@ -12,9 +12,9 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
 		<springboot.version>1.5.4.RELEASE</springboot.version>
 		<springboot.maven-plugin.version>1.5.4.RELEASE</springboot.maven-plugin.version>
+		<swagger.springfox.version>2.6.1</swagger.springfox.version>
 	</properties>
 
 	<dependencyManagement>
@@ -89,6 +89,33 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
 		</dependency>
+		
+		<!-- springfox swagger -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger.springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger.springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-bean-validators</artifactId>
+            <version>${swagger.springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-staticdocs</artifactId>
+            <version>${swagger.springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-schema</artifactId>
+            <version>${swagger.springfox.version}</version>
+        </dependency>
 
 	</dependencies>
 

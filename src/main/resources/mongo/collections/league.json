@@ -1,0 +1,11 @@
+{"_id":{"$oid":"5a1d20cec7742331438792a3"},"code":"PRI","name":"Primera","prefix":"http://www.bdfutbol.com/es/t/t","suffix":".html"}
+{"_id":{"$oid":"5a1d20e1c7742331438792ac"},"code":"SEG","name":"Segunda","prefix":"http://www.bdfutbol.com/es/t/t","suffix":"2a.html"}
+{"_id":{"$oid":"5a3b6b932744e45cd06daff5"},"code":"SEG-B1","name":"Segunda B Grupo 1","prefix":"http://www.bdfutbol.com/es/t/t","suffix":"2aB1.html"}
+{"_id":{"$oid":"5a3b6b9c2744e45cd06daff7"},"code":"SEG-B2","name":"Segunda B Grupo 2","prefix":"http://www.bdfutbol.com/es/t/t","suffix":"2aB2.html"}
+{"_id":{"$oid":"5a3b6ba22744e45cd06daffa"},"code":"SEG-B3","name":"Segunda B Grupo 3","prefix":"http://www.bdfutbol.com/es/t/t","suffix":"2aB3.html"}
+{"_id":{"$oid":"5a3b6baa2744e45cd06daffd"},"code":"SEG-B4","name":"Segunda B Grupo 4","prefix":"http://www.bdfutbol.com/es/t/t","suffix":"2aB4.html"}
+{"_id":{"$oid":"5a435edaf4411c03661bb1c6"},"code":"PREM","name":"Premier","prefix":"http://www.bdfutbol.com/es/t/teng","suffix":".html"}
+{"_id":{"$oid":"5a435f1cf4411c03661bb1ce"},"code":"BUND","name":"Bundesliga","prefix":"http://www.bdfutbol.com/es/t/tger","suffix":".html"}
+{"_id":{"$oid":"5a435f9df4411c03661bb1dc"},"code":"SER-A","name":"Italia - Serie A","prefix":"http://www.bdfutbol.com/es/t/tita","suffix":".html"}
+{"_id":{"$oid":"5a435fe2f4411c03661bb1e4"},"code":"LIG-1","name":"Francia - Ligue 1","prefix":"http://www.bdfutbol.com/es/t/tfra","suffix":".html"}
+{"_id":{"$oid":"5a436021f4411c03661bb1ec"},"code":"PRIMEIRA","name":"Portugal - Primeira Liga","prefix":"http://www.bdfutbol.com/es/t/tpor","suffix":".html"}
