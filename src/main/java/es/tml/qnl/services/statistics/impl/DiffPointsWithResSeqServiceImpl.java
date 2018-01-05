@@ -58,7 +58,7 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 		log.info("Performing iteration with a sequence of {} elements", iterationNumber);
 		
 		Teams.getTeams().forEach(team -> {
-			roundRepository.getRoundByTeam(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
+			roundRepository.findByTeamSorted(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
 				Result result = calculateResult(team, round);
 				calculateDifferenceAndSequence(round, iterationNumber, result);
 			});

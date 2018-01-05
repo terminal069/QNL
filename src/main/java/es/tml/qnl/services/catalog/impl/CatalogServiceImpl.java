@@ -14,14 +14,14 @@ import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.model.mongo.Season;
-import es.tml.qnl.model.mongo.SeasonRange;
+import es.tml.qnl.model.mongo.SeasonData;
 import es.tml.qnl.repositories.mongo.LeagueRepository;
 import es.tml.qnl.repositories.mongo.RoundRepository;
-import es.tml.qnl.repositories.mongo.SeasonRangeRepository;
+import es.tml.qnl.repositories.mongo.SeasonDataRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
 import es.tml.qnl.repositories.mongo.TeamRepository;
-import es.tml.qnl.services.catalog.CatalogDataParserService;
 import es.tml.qnl.services.catalog.CatalogService;
+import es.tml.qnl.util.CatalogDataParser;
 
 @Service
 public class CatalogServiceImpl implements CatalogService {
@@ -33,7 +33,7 @@ public class CatalogServiceImpl implements CatalogService {
 	private SeasonRepository seasonRepository;
 	
 	@Autowired
-	private SeasonRangeRepository seasonRangeRepository;
+	private SeasonDataRepository seasonDataRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
@@ -42,26 +42,27 @@ public class CatalogServiceImpl implements CatalogService {
 	private TeamRepository teamRepository;
 	
 	@Autowired
-	private CatalogDataParserService catalogDataParserService;
+	private CatalogDataParser catalogDataParser;
 	
 	@Override
 	public void generateSeasons() {
 
 		seasonRepository.deleteAll();
 		
-		List<SeasonRange> seasonsRange = seasonRangeRepository.findAll();
+		List<SeasonData> seasonsData = seasonDataRepository.findAll();
 		
 		leagueRepository.findAll().forEach(league -> {
-			seasonsRange.forEach(seasonRange -> {
+			seasonsData.forEach(seasonData -> {
 				seasonRepository.save(new Season(
-						seasonRange.getYear(),
-						seasonRange.getSeasonRange(),
+						seasonData.getYear(),
+						seasonData.getSeasonRange(),
 						league.getCode(),
 						new StringBuilder()
 							.append(league.getPrefix())
-							.append(seasonRange.getSeasonRange())
+							.append(seasonData.getSeasonRange())
 							.append(league.getSuffix())
-							.toString()));
+							.toString(),
+						seasonData.isCurrentSeason()));
 			});
 		});
 	}
@@ -91,14 +92,15 @@ public class CatalogServiceImpl implements CatalogService {
 		}
 		
 		// Get league data from DB and filter it by season
-		Optional.of(seasonRepository.findByLeagueAndSeasonCodeRank(
+		Optional.of(seasonRepository.findByLeagueAndNotCurrentSeasonAndSeasonCodeRank(
 				request.getLeagueCode(),
 				request.getFromSeasonCode(),
 				request.getToSeasonCode()))
 			.orElse(Collections.emptyList())
 			.stream()
 			.forEach(season -> {
-				catalogDataParserService.parseDataFromUrl(request.getLeagueCode(), season);
+				roundRepository.deleteByLeagueAndSeason(request.getLeagueCode(), season.getCode());
+				catalogDataParser.parseDataFromUrl(request.getLeagueCode(), season);
 			});
 	}
 	
@@ -107,7 +109,7 @@ public class CatalogServiceImpl implements CatalogService {
 		
 		List<GetRoundResponse> response = new ArrayList<>();
 		
-		roundRepository.getRoundByRoundSeasonLeagueLocalVisitor(
+		roundRepository.findByRoundAndSeasonAndLeagueAndLocalAndVisitor(
 				request.getRoundNumber(),
 				request.getSeasonCode(),
 				request.getLeagueCode(),

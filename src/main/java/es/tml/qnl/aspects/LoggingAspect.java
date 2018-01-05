@@ -16,32 +16,8 @@ public class LoggingAspect {
 	private static final String START = "------------------- START ({}) -------------------";
 	private static final String END = "-------------------  END ({})  -------------------";
 	
-	@Around("execution(public * es.tml.qnl.services.catalog.CatalogService.*(..))")
-	public Object catalogService(ProceedingJoinPoint pjp) throws Throwable {
-		
-		return executeMethod(pjp, pjp.getSignature().getName());
-	}
-	
-	@Around("execution(public * es.tml.qnl.services.statistics.AVsBService.*(..))")
-	public Object aVsBService(ProceedingJoinPoint pjp) throws Throwable {
-		
-		return executeMethod(pjp, pjp.getSignature().getName());
-	}
-	
-	@Around("execution(public * es.tml.qnl.services.statistics.DifferenceOfPointsService.*(..))")
-	public Object differenceOfPointsService(ProceedingJoinPoint pjp) throws Throwable {
-		
-		return executeMethod(pjp, pjp.getSignature().getName());
-	}
-	
-	@Around("execution(public * es.tml.qnl.services.statistics.DiffPointsWithResSeqService.*(..))")
-	public Object diffPointsWithResSeqService(ProceedingJoinPoint pjp) throws Throwable {
-		
-		return executeMethod(pjp, pjp.getSignature().getName());
-	}
-	
-	@Around("execution(public * es.tml.qnl.services.statistics.ResultSequenceService.*(..))")
-	public Object resultSequenceService(ProceedingJoinPoint pjp) throws Throwable {
+	@Around("execution(public * es.tml.qnl.services.*.*Service.*(..))")
+	public Object loggingService(ProceedingJoinPoint pjp) throws Throwable {
 		
 		return executeMethod(pjp, pjp.getSignature().getName());
 	}

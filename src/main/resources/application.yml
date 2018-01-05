@@ -20,6 +20,7 @@ qnl:
         visitor: visitantrr
         localRes: marcalocalrr
         visitorRes: marcavisitantrr
+      notDisputed: "-"
   points:
     win: 3
     draw: 1

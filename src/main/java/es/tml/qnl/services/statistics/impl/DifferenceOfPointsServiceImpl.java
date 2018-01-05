@@ -61,7 +61,7 @@ public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService 
 		}
 		
 		// Get difference of points statistics and, if it doesn't exists, create one
-		StatDifferenceOfPoints statDifferenceOfPoints = Optional.ofNullable(statDifferenceOfPointsRepository.getStatByDifference(difference))
+		StatDifferenceOfPoints statDifferenceOfPoints = Optional.ofNullable(statDifferenceOfPointsRepository.findByDifference(difference))
 				.orElse(new StatDifferenceOfPoints(difference));
 		
 		// Depending the result, increase the value of statistics

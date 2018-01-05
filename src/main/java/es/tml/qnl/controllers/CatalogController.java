@@ -3,6 +3,7 @@ package es.tml.qnl.controllers;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,11 +23,13 @@ import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.services.catalog.CatalogService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping(
-		consumes = { MediaType.APPLICATION_JSON_VALUE },
-		produces = {MediaType.APPLICATION_JSON_VALUE},
+		produces = { MediaType.APPLICATION_JSON_VALUE },
 		path = "/qnl/catalog")
 public class CatalogController {
 	
@@ -38,9 +41,36 @@ public class CatalogController {
 	
 	@Autowired
 	private CatalogService catalogService;
-
-	@PostMapping
+	
+	@PostMapping(
+			value = "/seasons",
+			consumes = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(value = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Generate season data",
+			notes = "This service is used to generate season data from data stored in repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly generated season data"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void generateSeasons() {
+		
+		catalogService.generateSeasons();
+	}
+
+	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE })
+	@ResponseStatus(value = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Load catalog data into repository",
+			notes = "This service is used to load catalog data into the repository. Two behaviours are permited: "
+					+ "if no league code is provided, it loads data from all leagues; otherwise, it only loads data "
+					+ "from specified league")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly loaded catalog data"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
 	public void loadData(@RequestBody @Valid LoadDataRequest request) {
 		
 		if (StringUtils.isEmpty(request.getLeagueCode())) {
@@ -51,15 +81,16 @@ public class CatalogController {
 		}
 	}
 	
-	@PostMapping(value = "/seasons")
-	@ResponseStatus(value = HttpStatus.CREATED)
-	public void generateSeasons() {
-		
-		catalogService.generateSeasons();
-	}
-	
 	@GetMapping(value = "/rounds")
 	@ResponseStatus(value = HttpStatus.OK)
+	@ApiOperation(
+			value = "Get round data",
+			notes = "This service is used to get data from a round based on request parameters")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_OK, message = "Properly gotten round data"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
 	public List<GetRoundResponse> getRounds(@RequestParam Map<String, String> requestParams) {
 		
 		return catalogService.getRound(new GetRoundRequest(
@@ -72,6 +103,14 @@ public class CatalogController {
 	
 	@GetMapping(value = "/teams")
 	@ResponseStatus(value = HttpStatus.OK)
+	@ApiOperation(
+			value = "Get all teams",
+			notes = "This service is used to get data from all teams stored in the repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_OK, message = "Properly gotten team data"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
 	public List<GetTeamsResponse> getTeams() {
 		
 		return catalogService.getTeams();

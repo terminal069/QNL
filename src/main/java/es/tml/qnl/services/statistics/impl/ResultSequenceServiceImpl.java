@@ -51,7 +51,7 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 		log.info("Performing iteration with a sequence of {} elements", iterationNumber);
 		
 		Teams.getTeams().forEach(team -> {
-			roundRepository.getRoundByTeam(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
+			roundRepository.findByTeamSorted(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
 				Result result = calculateResult(team, round);
 				calculateSequence(round, result, iterationNumber);
 			});
