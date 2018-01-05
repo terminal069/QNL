@@ -8,6 +8,6 @@ import es.tml.qnl.model.mongo.StatDifferenceOfPoints;
 public interface StatDifferenceOfPointsRepository extends MongoRepository<StatDifferenceOfPoints, String> {
 
 	@Query(value = "{ 'difference': ?0 }")
-	StatDifferenceOfPoints getStatByDifference(int difference);
+	StatDifferenceOfPoints findByDifference(Integer difference);
 
 }

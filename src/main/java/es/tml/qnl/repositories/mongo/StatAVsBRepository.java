@@ -8,5 +8,5 @@ import es.tml.qnl.model.mongo.StatAVsB;
 public interface StatAVsBRepository extends MongoRepository<StatAVsB, String> {
 
 	@Query(value = "{ 'local': ?0, 'visitor': ?1 }")
-	StatAVsB getStatAVsBByLocalVisitor(String local, String visitor);
+	StatAVsB findByLocalAndVisitor(String local, String visitor);
 }

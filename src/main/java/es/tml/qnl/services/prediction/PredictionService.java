@@ -1,10 +1,10 @@
 package es.tml.qnl.services.prediction;
 
-import es.tml.qnl.beans.prediction.GetPredictionRequest;
-import es.tml.qnl.beans.prediction.GetPredictionResponse;
+import es.tml.qnl.beans.prediction.PredictionRequest;
+import es.tml.qnl.beans.prediction.PredictionResponse;
 
 public interface PredictionService {
 
-	GetPredictionResponse makePrediction(GetPredictionRequest request);
+	PredictionResponse makePrediction(PredictionRequest request);
 
 }

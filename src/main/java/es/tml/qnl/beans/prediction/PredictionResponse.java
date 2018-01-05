@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GetPredictionResponse {
+public class PredictionResponse {
 
 	private String id;
 	

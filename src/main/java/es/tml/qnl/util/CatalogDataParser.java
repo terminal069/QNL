@@ -1,7 +1,10 @@
 package es.tml.qnl.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jsoup.Jsoup;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.exceptions.QNLException;
+import es.tml.qnl.model.mongo.GenericRound;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.RoundPrediction;
 import es.tml.qnl.model.mongo.Season;
@@ -86,14 +90,12 @@ public class CatalogDataParser {
 	private String leagueCode;
 	private Map<String, Integer> globalPoints = new HashMap<>();
 	
+	
 	public void parseDataFromUrl(String leagueCode, Season season) {
 		
 		log.debug("Parsing data from league '{}' and season '{}'", leagueCode, season.getName());
 		
 		initialize(leagueCode, season.getCode());
-		
-		// Delete old data to be parsed
-		roundRepository.deleteByLeagueAndSeason(leagueCode, seasonCode);
 		
 		// Get document from url and parse it
 		getDocument(season.getUrl())
@@ -101,23 +103,22 @@ public class CatalogDataParser {
 			.forEach(roundElement -> parseRound(roundElement));
 	}
 	
-	public void parsePartialDataFromUrl(String leagueCode, Season season, int fromRound, int toRound) {
+	public void parsePartialDataFromUrl(String leagueCode, Season season, int toRound) {
 		
-		log.debug("Parsing data from league '{}' and season '{}', from round {} to round '{}'",
-				leagueCode, season.getName(), fromRound, toRound);
+		log.debug("Parsing data from league '{}' and season '{}', to round '{}'",
+				leagueCode, season.getName(), toRound);
 		
 		initialize(leagueCode, season.getCode());
 		
 		getDocument(season.getUrl())
 			.getElementsByClass(roundClassTag)
-			.forEach(roundElement -> parsePartialRound(roundElement, fromRound, toRound));
+			.forEach(roundElement -> parsePartialRound(roundElement, toRound));
 	}
 
 	private void initialize(String leagueCode, int seasonCode) {
 		
 		this.seasonCode = seasonCode;
 		this.leagueCode = leagueCode;
-		this.roundNumber = 0;
 		this.globalPoints.clear();
 	}
 
@@ -141,19 +142,36 @@ public class CatalogDataParser {
 			}
 		});
 		
+		List<GenericRound> rounds = new ArrayList<>();
+		
 		roundElement.getElementsByClass(resultClassTag).forEach(resultElement -> {
-			parseResults(resultElement);
+			rounds.add(parseResults(resultElement));
 		});
+		
+		calculatePositions(rounds);
+
+		rounds.forEach(round -> roundRepository.save(new Round(
+				round.getRoundNumber(),
+				round.getSeasonCode(),
+				round.getLeagueCode(),
+				round.getLocal(),
+				round.getVisitor(),
+				round.getLocalRes(),
+				round.getVisitorRes(),
+				round.getLocalPoints(),
+				round.getVisitorPoints(),
+				round.getLocalPosition(),
+				round.getVisitorPosition())));
 	}
 	
-	private void parseResults(Element resultElement) {
+	private Round parseResults(Element resultElement) {
 		
 		// Load teams
 		String local = resultElement.getElementsByClass(localClassTag).first().text();
 		String visitor = resultElement.getElementsByClass(visitorClassTag).first().text();
 		loadTeam(local, visitor);
 		
-		// Calculate round points
+		// Calculate round data
 		int localRes = Integer.parseInt(resultElement.getElementsByClass(localResClassTag).first().text());
 		int visitorRes = Integer.parseInt(resultElement.getElementsByClass(visitorResClassTag).first().text());
 		int localRoundPoints = calculatePoints(localRes, visitorRes);
@@ -163,8 +181,75 @@ public class CatalogDataParser {
 		addGlobalPoints(local, localRoundPoints);
 		addGlobalPoints(visitor, visitorRoundPoints);
 		
-		// Save data
-		roundRepository.save(new Round(
+		return new Round(
+			roundNumber,
+			seasonCode,
+			leagueCode,
+			local,
+			visitor,
+			localRes,
+			visitorRes,
+			globalPoints.get(local),
+			globalPoints.get(visitor));
+	}
+	
+	private void parsePartialRound(Element roundElement, int toRound) {
+		
+		roundElement.classNames().forEach(className -> {
+			if (className.startsWith(roundPrefix)) {
+				roundNumber = Integer.parseInt(className.substring(roundPrefix.length()));
+			}
+		});
+		
+		List<GenericRound> rounds = new ArrayList<>();
+		
+		if (roundNumber < toRound) {
+			roundElement.getElementsByClass(resultClassTag).forEach(resultElement -> {
+				RoundPrediction round = parsePartialResults(resultElement);
+				if (round != null) {
+					rounds.add(round);
+				}
+			});
+			
+			calculatePositions(rounds);
+			
+			rounds.forEach(round -> roundPredictionRepository.save(new RoundPrediction(
+					round.getRoundNumber(),
+					round.getSeasonCode(),
+					round.getLeagueCode(),
+					round.getLocal(),
+					round.getVisitor(),
+					round.getLocalRes(),
+					round.getVisitorRes(),
+					round.getLocalPoints(),
+					round.getVisitorPoints(),
+					round.getLocalPosition(),
+					round.getVisitorPosition())));
+		}
+	}
+
+	private RoundPrediction parsePartialResults(Element resultElement) {
+		
+		RoundPrediction round = null;
+		
+		String localResTemp = resultElement.getElementsByClass(localResClassTag).first().text();
+		String visitorResTemp = resultElement.getElementsByClass(visitorResClassTag).first().text();
+		
+		if (!localResTemp.equals(notDisputed) && !visitorResTemp.equals(notDisputed)) {
+		
+			// Calculate round data
+			int localRes = Integer.parseInt(localResTemp);
+			int visitorRes = Integer.parseInt(visitorResTemp);
+			int localRoundPoints = calculatePoints(localRes, visitorRes);
+			int visitorRoundPoints = calculatePoints(visitorRes, localRes);
+			
+			// Add global points
+			String local = resultElement.getElementsByClass(localClassTag).first().text();
+			String visitor = resultElement.getElementsByClass(visitorClassTag).first().text();
+			addGlobalPoints(local, localRoundPoints);
+			addGlobalPoints(visitor, visitorRoundPoints);
+			
+			round = new RoundPrediction(
 				roundNumber,
 				seasonCode,
 				leagueCode,
@@ -173,17 +258,10 @@ public class CatalogDataParser {
 				localRes,
 				visitorRes,
 				globalPoints.get(local),
-				globalPoints.get(visitor)));
-	}
-	
-	private void loadTeam(String... teams) {
-		
-		for (String team : teams) {
-			if (!Teams.existTeam(team)) {
-				teamRepository.save(new Team(team));
-				Teams.addTeam(team);
-			}
+				globalPoints.get(visitor));
 		}
+		
+		return round;
 	}
 	
 	private int calculatePoints(int resA, int resB) {
@@ -198,52 +276,40 @@ public class CatalogDataParser {
 		globalPoints.put(team, points + roundPoints);
 	}
 	
-	private void parsePartialRound(Element roundElement, int fromRound, int toRound) {
+	private void loadTeam(String... teams) {
 		
-		roundElement.classNames().forEach(className -> {
-			if (className.startsWith(roundPrefix)) {
-				roundNumber = Integer.parseInt(className.substring(roundPrefix.length()));
+		for (String team : teams) {
+			if (!Teams.existTeam(team)) {
+				teamRepository.save(new Team(team));
+				Teams.addTeam(team);
 			}
+		}
+	}
+	
+	private void calculatePositions(List<GenericRound> rounds) {
+
+		List<Integer> points = new ArrayList<>();
+		
+		rounds.forEach(round -> {
+			points.add(round.getLocalPoints());
+			points.add(round.getVisitorPoints());
 		});
 		
-		if (roundNumber >= fromRound && roundNumber <= toRound) {
-			roundElement.getElementsByClass(resultClassTag).forEach(resultElement -> {
-				parsePartialResults(resultElement);
-			});
-		}
+		Collections.sort(points);
+		Collections.reverse(points);
+		
+		rounds.forEach(round -> {
+			round.setLocalPosition(getTeamPosition(points, round.getLocalPoints()));
+			round.setVisitorPosition(getTeamPosition(points, round.getVisitorPoints()));
+		});
 	}
-
-	private void parsePartialResults(Element resultElement) {
+	
+	private Integer getTeamPosition(List<Integer> points, int teamPoints) {
 		
-		String localResTemp = resultElement.getElementsByClass(localResClassTag).first().text();
-		String visitorResTemp = resultElement.getElementsByClass(visitorResClassTag).first().text();
+		int position = points.indexOf(teamPoints);
+		points.set(points.lastIndexOf(teamPoints), -1);
 		
-		if (!localResTemp.equals(notDisputed) && !visitorResTemp.equals(notDisputed)) {
-		
-			// Calculate round points
-			int localRes = Integer.parseInt(localResTemp);
-			int visitorRes = Integer.parseInt(visitorResTemp);
-			int localRoundPoints = calculatePoints(localRes, visitorRes);
-			int visitorRoundPoints = calculatePoints(visitorRes, localRes);
-			
-			// Add global points
-			String local = resultElement.getElementsByClass(localClassTag).first().text();
-			String visitor = resultElement.getElementsByClass(visitorClassTag).first().text();
-			addGlobalPoints(local, localRoundPoints);
-			addGlobalPoints(visitor, visitorRoundPoints);
-			
-			// Save the round
-			roundPredictionRepository.save(new RoundPrediction(
-					roundNumber,
-					seasonCode,
-					leagueCode,
-					local,
-					visitor,
-					localRes,
-					visitorRes,
-					globalPoints.get(local),
-					globalPoints.get(visitor)));
-		}
+		return position + 1;
 	}
-
+	
 }

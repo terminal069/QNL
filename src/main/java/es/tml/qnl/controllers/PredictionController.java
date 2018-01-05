@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.tml.qnl.beans.prediction.GetPredictionRequest;
-import es.tml.qnl.beans.prediction.GetPredictionResponse;
+import es.tml.qnl.beans.prediction.PredictionRequest;
+import es.tml.qnl.beans.prediction.PredictionResponse;
 import es.tml.qnl.services.prediction.PredictionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -39,7 +39,7 @@ public class PredictionController {
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
 		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
 	})
-	public GetPredictionResponse getPrediction(@RequestBody @Valid GetPredictionRequest request) {
+	public PredictionResponse prediction(@RequestBody @Valid PredictionRequest request) {
 		
 		return predictionService.makePrediction(request);
 	}

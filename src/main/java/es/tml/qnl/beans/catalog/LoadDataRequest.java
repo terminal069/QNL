@@ -1,10 +1,10 @@
 package es.tml.qnl.beans.catalog;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class LoadDataRequest {
 
 	public LoadDataRequest(String leagueCode) {

@@ -20,12 +20,15 @@ public interface RoundRepository extends MongoRepository<Round, String> {
 			+ "  ?#{ [3] == null ? { $where: 'true' } : { 'local': [3] }},"
 			+ "  ?#{ [4] == null ? { $where: 'true' } : { 'visitor': [4] }}"
 			+ "]}")
-	List<Round> getRoundByRoundSeasonLeagueLocalVisitor(Integer roundNumber, Integer seasonCode,
+	List<Round> findByRoundAndSeasonAndLeagueAndLocalAndVisitor(Integer roundNumber, Integer seasonCode,
 			String leagueCode, String local, String visitor);
 	
 	@Query(value = "{ 'local': ?0, 'visitor': ?1 }")
-	List<Round> getRoundByLocalVisitor(String local, String visitor);
+	List<Round> findByLocalAndVisitor(String local, String visitor);
 	
 	@Query(value = "{ $or: [ {'local': ?0}, {'visitor': ?0} ] }")
-	List<Round> getRoundByTeam(String team, Sort sort);
+	List<Round> findByTeamSorted(String team, Sort sort);
+	
+	@Query(value = "{ 'leagueCode': ?0, 'seasonCode': ?1 }")
+	List<Round> findByLeagueAndSeasonSorted(String leagueCode, int seasonCode, Sort sort);
 }

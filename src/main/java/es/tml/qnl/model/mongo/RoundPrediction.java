@@ -2,30 +2,23 @@ package es.tml.qnl.model.mongo;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "roundPrediction")
-public class RoundPrediction {
+public class RoundPrediction extends GenericRound {
 	
-	private int roundNumber;
-	
-	private int seasonCode;
-	
-	private String leagueCode;
-	
-	private String local;
-	
-	private String visitor;
-	
-	private int localRes;
-	
-	private int visitorRes;
-	
-	private int localPoints;
-	
-	private int visitorPoints;
+	public RoundPrediction(int roundNumber, int seasonCode, String leagueCode, String local, String visitor,
+			int localRes, int visitorRes, int localPoints, int visitorPoints) {
+		
+		super(roundNumber, seasonCode, leagueCode, local, visitor, localRes, visitorRes,
+				localPoints, visitorPoints);
+	}
 
+	public RoundPrediction(int roundNumber, int seasonCode, String leagueCode, String local, String visitor,
+			int localRes, int visitorRes, int localPoints, int visitorPoints, int localPosition, int visitorPosition) {
+		
+		super(roundNumber, seasonCode, leagueCode, local, visitor, localRes, visitorRes,
+				localPoints, visitorPoints, localPosition, visitorPosition);
+	}
 }

@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import es.tml.qnl.beans.prediction.GetPredictionRequest;
-import es.tml.qnl.beans.prediction.GetPredictionResponse;
+import es.tml.qnl.beans.prediction.PredictionRequest;
+import es.tml.qnl.beans.prediction.PredictionResponse;
 import es.tml.qnl.beans.prediction.Prediction;
 import es.tml.qnl.repositories.mongo.RoundPredictionRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
@@ -35,7 +35,7 @@ public class PredictionServiceImpl implements PredictionService {
 	private RoundPredictionRepository roundPredictionRepository;
 	
 	@Override
-	public GetPredictionResponse makePrediction(GetPredictionRequest request) {
+	public PredictionResponse makePrediction(PredictionRequest request) {
 		
 		// Delete old data
 		roundPredictionRepository.deleteAll();
@@ -47,18 +47,18 @@ public class PredictionServiceImpl implements PredictionService {
 		List<Prediction> predictions = predictor.predict(request.getMatches());
 		
 		// Return prediction
-		return new GetPredictionResponse(
+		return new PredictionResponse(
 				request.getId(),
 				predictions);
 	}
 
-	private void loadCurrentData(GetPredictionRequest request) {
+	private void loadCurrentData(PredictionRequest request) {
 
 		groupData(request) // Group data request by league, season and round
 			.forEach(group -> parseData(group)); // With data grouped, parse round data from web
 	}
 	
-	private List<String> groupData(GetPredictionRequest request) {
+	private List<String> groupData(PredictionRequest request) {
 		
 		List<String> groupedData = new ArrayList<>();
 		
@@ -92,7 +92,6 @@ public class PredictionServiceImpl implements PredictionService {
 		catalogDataParser.parsePartialDataFromUrl(
 				leagueCode,
 				seasonRepository.findByLeagueAndSeason(leagueCode, seasonCode),
-				1,
 				round);
 	}
 

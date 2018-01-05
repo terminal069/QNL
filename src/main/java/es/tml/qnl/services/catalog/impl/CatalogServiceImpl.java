@@ -99,6 +99,7 @@ public class CatalogServiceImpl implements CatalogService {
 			.orElse(Collections.emptyList())
 			.stream()
 			.forEach(season -> {
+				roundRepository.deleteByLeagueAndSeason(request.getLeagueCode(), season.getCode());
 				catalogDataParser.parseDataFromUrl(request.getLeagueCode(), season);
 			});
 	}
@@ -108,7 +109,7 @@ public class CatalogServiceImpl implements CatalogService {
 		
 		List<GetRoundResponse> response = new ArrayList<>();
 		
-		roundRepository.getRoundByRoundSeasonLeagueLocalVisitor(
+		roundRepository.findByRoundAndSeasonAndLeagueAndLocalAndVisitor(
 				request.getRoundNumber(),
 				request.getSeasonCode(),
 				request.getLeagueCode(),

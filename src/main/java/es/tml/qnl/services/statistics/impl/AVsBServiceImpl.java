@@ -42,7 +42,7 @@ public class AVsBServiceImpl implements AVsBService {
 		log.debug("Performing combination of {} - {}", local, visitor);
 		
 		if (!local.equals(visitor)) {
-			roundRepository.getRoundByLocalVisitor(local, visitor)
+			roundRepository.findByLocalAndVisitor(local, visitor)
 				.forEach(round -> {
 					calculateAndPersistResults(round, local, visitor);
 				});
@@ -51,7 +51,7 @@ public class AVsBServiceImpl implements AVsBService {
 
 	private void calculateAndPersistResults(Round round, String local, String visitor) {
 		
-		StatAVsB statAVsB = Optional.ofNullable(statAVsBRepository.getStatAVsBByLocalVisitor(local, visitor))
+		StatAVsB statAVsB = Optional.ofNullable(statAVsBRepository.findByLocalAndVisitor(local, visitor))
 				.orElse(new StatAVsB(local, visitor));
 		
 		if (round.getLocalRes() > round.getVisitorRes()) {

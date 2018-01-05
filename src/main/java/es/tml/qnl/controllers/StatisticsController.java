@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.tml.qnl.beans.statistics.PositionRequest;
 import es.tml.qnl.beans.statistics.ResultSequenceRequest;
 import es.tml.qnl.services.statistics.AVsBService;
+import es.tml.qnl.services.statistics.ClassificationPositionService;
 import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
 import es.tml.qnl.services.statistics.ResultSequenceService;
@@ -39,6 +41,9 @@ public class StatisticsController {
 	
 	@Autowired
 	private DiffPointsWithResSeqService diffPointsWithResSeqService;
+	
+	@Autowired
+	private ClassificationPositionService classificationPositionService;
 
 	@PostMapping(value = "/aVsB")
 	@ResponseStatus(code = HttpStatus.CREATED)
@@ -102,5 +107,22 @@ public class StatisticsController {
 	public void differenceOfPointsWithResultSequence(@Valid @RequestBody ResultSequenceRequest request) {
 		
 		diffPointsWithResSeqService.calculateDiffPointsWithResSeq(request.getMaxIterations());
+	}
+	
+	@PostMapping(value = "/position")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Calculate statistics by position",
+			notes = "This service is used to calculate statistics based on the classification position of the "
+					+ "teams and save them into repository. If two teams have the same points in the same round, "
+					+ "position asigned will be the same")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void classificationPosition(@Valid @RequestBody PositionRequest request) {
+		
+		classificationPositionService.calculateClassificationPosition(request);
 	}
 }
