@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import es.tml.qnl.beans.statistics.ResultSequenceRequest;
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
@@ -16,6 +17,7 @@ import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatDiffPointsResSeqRepository;
 import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.util.FIFOQueue;
+import es.tml.qnl.util.TimeLeftEstimator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -39,9 +41,20 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 	@Autowired
 	private FIFOQueue<Result> fifoQueue;
 	
+	@Autowired
+	private TimeLeftEstimator timeLeftEstimator;
+	
+	private int maxIterations;
+	private int totalTeams;
+	private int posActualTeam;
+	
 	@Override
-	public void calculateDiffPointsWithResSeq(int maxIterations) {
+	public void calculateDiffPointsWithResSeq(ResultSequenceRequest request) {
 
+		maxIterations = request.getMaxIterations();
+		totalTeams = Teams.getTeams().size();
+		timeLeftEstimator.init(maxIterations * totalTeams);
+		
 		// Delete all data from repository
 		statDiffPointsResSeqRepository.deleteAll();
 		
@@ -55,13 +68,24 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 	
 	private void performIteration(int iterationNumber) {
 		
-		log.info("Performing iteration with a sequence of {} elements", iterationNumber);
+		log.debug("Performing iteration with a sequence of {} elements", iterationNumber);
+		
+		posActualTeam = 1;
 		
 		Teams.getTeams().forEach(team -> {
+			log.debug("Iteration {}/{} - Team {}/{} - Estimated time left: {}",
+					iterationNumber, maxIterations, posActualTeam, totalTeams, timeLeftEstimator.getTimeLeft());
+			
+			timeLeftEstimator.startPartial();
 			roundRepository.findByTeamSorted(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
-				Result result = calculateResult(team, round);
-				calculateDifferenceAndSequence(round, iterationNumber, result);
+				calculateDifferenceAndSequence(
+						round,
+						iterationNumber,
+						calculateResult(team, round));
 			});
+			
+			posActualTeam++;
+			timeLeftEstimator.finishPartial();
 		});
 	}
 	

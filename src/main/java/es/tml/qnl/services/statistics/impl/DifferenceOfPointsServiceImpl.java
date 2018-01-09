@@ -1,5 +1,6 @@
 package es.tml.qnl.services.statistics.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,10 @@ import es.tml.qnl.model.mongo.StatDifferenceOfPoints;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatDifferenceOfPointsRepository;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
+import es.tml.qnl.util.TimeLeftEstimator;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService {
 
@@ -27,15 +31,31 @@ public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService 
 	@Autowired
 	private RoundRepository roundRepository;
 	
+	@Autowired
+	private TimeLeftEstimator timeLeftEstimator;
+	
+	private int actualRound;
+	
 	@Override
 	public void calculateDifferenceOfPoints() {
+		
+		List<Round> rounds = roundRepository.findAll();
+		actualRound = 1;
+		int totalRounds = rounds.size();
+		timeLeftEstimator.init(totalRounds);
 		
 		// Delete difference of points statistics data from repository
 		statDifferenceOfPointsRepository.deleteAll();
 		
 		// Search all rounds and calculate statistics for each one
-		roundRepository.findAll().forEach(round -> {
+		rounds.forEach(round -> {
+			log.debug("Performing iteration of round {}/{} - Estimated time left: {}",
+					actualRound, totalRounds, timeLeftEstimator.getTimeLeft());
+			
+			timeLeftEstimator.startPartial();
 			calculateResults(round);
+			actualRound++;
+			timeLeftEstimator.finishPartial();
 		});
 	}
 

@@ -79,7 +79,7 @@ public class StatisticsController {
 	})
 	public void resultSequence(@Valid @RequestBody ResultSequenceRequest request) {
 		
-		resultSequenceService.calculateResultSequence(request.getMaxIterations());
+		resultSequenceService.calculateResultSequence(request);
 	}
 	
 	@PostMapping(value = "/differenceOfPoints")
@@ -111,7 +111,7 @@ public class StatisticsController {
 	})
 	public void differenceOfPointsWithResultSequence(@Valid @RequestBody ResultSequenceRequest request) {
 		
-		diffPointsWithResSeqService.calculateDiffPointsWithResSeq(request.getMaxIterations());
+		diffPointsWithResSeqService.calculateDiffPointsWithResSeq(request);
 	}
 	
 	@PostMapping(value = "/position")

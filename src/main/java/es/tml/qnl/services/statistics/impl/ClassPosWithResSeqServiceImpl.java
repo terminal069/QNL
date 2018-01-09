@@ -39,11 +39,8 @@ public class ClassPosWithResSeqServiceImpl implements ClassPosWithResSeqService 
 	private TimeLeftEstimator timeLeftEstimator;
 	
 	private int minRound;
-	
 	private int maxIterations;
-	
-	private int totalTeams = Teams.getTeams().size();
-	
+	private int totalTeams;
 	private int posActualTeam;
 	
 	@Override
@@ -51,6 +48,7 @@ public class ClassPosWithResSeqServiceImpl implements ClassPosWithResSeqService 
 
 		this.minRound = request.getMinRound();
 		this.maxIterations = request.getMaxIterations();
+		totalTeams = Teams.getTeams().size();
 		timeLeftEstimator.init(maxIterations * totalTeams);
 		
 		// Delete old data
@@ -71,11 +69,10 @@ public class ClassPosWithResSeqServiceImpl implements ClassPosWithResSeqService 
 		
 		Teams.getTeams().forEach(team -> {
 			
-			timeLeftEstimator.startPartial();
-			
 			log.debug("Iteration {}/{} - Team {}/{} - Estimated time left: {}",
 					iterationNumber, maxIterations, posActualTeam, totalTeams, timeLeftEstimator.getTimeLeft());
 			
+			timeLeftEstimator.startPartial();
 			fifoQueue.clear();
 			roundRepository.findByTeamSorted(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
 				calculatePositionAndSequence(

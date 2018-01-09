@@ -11,6 +11,7 @@ import es.tml.qnl.model.mongo.StatAVsB;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.StatAVsBRepository;
 import es.tml.qnl.services.statistics.AVsBService;
+import es.tml.qnl.util.TimeLeftEstimator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,8 +24,19 @@ public class AVsBServiceImpl implements AVsBService {
 	@Autowired
 	private StatAVsBRepository statAVsBRepository;
 	
+	@Autowired
+	private TimeLeftEstimator timeLeftEstimator;
+	
+	private int totalTeams = Teams.getTeams().size();
+	
+	private int totalCombitations = totalTeams * totalTeams;
+	
+	private int teamPosition = 1;
+	
 	@Override
 	public void calculateAVsB() {
+		
+		timeLeftEstimator.init(totalCombitations);
 		
 		// Delete data from statAVsB repository
 		statAVsBRepository.deleteAll();
@@ -39,7 +51,10 @@ public class AVsBServiceImpl implements AVsBService {
 
 	private void searchRounds(String local, String visitor) {
 		
-		log.debug("Performing combination of {} - {}", local, visitor);
+		log.debug("Performing combination {}/{} - Estimated time left: {}",
+				teamPosition, totalCombitations, timeLeftEstimator.getTimeLeft());
+		
+		timeLeftEstimator.startPartial();
 		
 		if (!local.equals(visitor)) {
 			roundRepository.findByLocalAndVisitor(local, visitor)
@@ -47,6 +62,9 @@ public class AVsBServiceImpl implements AVsBService {
 					calculateAndPersistResults(round, local, visitor);
 				});
 		}
+		
+		teamPosition++;
+		timeLeftEstimator.finishPartial();
 	}
 
 	private void calculateAndPersistResults(Round round, String local, String visitor) {
