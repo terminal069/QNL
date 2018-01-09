@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.tml.qnl.beans.statistics.ClassPosResSeqRequest;
 import es.tml.qnl.beans.statistics.PositionRequest;
 import es.tml.qnl.beans.statistics.ResultSequenceRequest;
 import es.tml.qnl.services.statistics.AVsBService;
+import es.tml.qnl.services.statistics.ClassPosWithResSeqService;
 import es.tml.qnl.services.statistics.ClassificationPositionService;
 import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
@@ -44,6 +46,9 @@ public class StatisticsController {
 	
 	@Autowired
 	private ClassificationPositionService classificationPositionService;
+	
+	@Autowired
+	private ClassPosWithResSeqService classPosWithResSeqService;
 
 	@PostMapping(value = "/aVsB")
 	@ResponseStatus(code = HttpStatus.CREATED)
@@ -124,5 +129,21 @@ public class StatisticsController {
 	public void classificationPosition(@Valid @RequestBody PositionRequest request) {
 		
 		classificationPositionService.calculateClassificationPosition(request);
+	}
+	
+	@PostMapping(value = "/classPosResSeq")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Calculate statistics by position and result sequence",
+			notes = "This service is used to calculate statistics based on the classification position and the "
+					+ "result sequence of the teams, and save them into repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void classificationPositionWithResultSequence(@Valid @RequestBody ClassPosResSeqRequest request) {
+		
+		classPosWithResSeqService.calculateClassPosWithResSeq(request);
 	}
 }
