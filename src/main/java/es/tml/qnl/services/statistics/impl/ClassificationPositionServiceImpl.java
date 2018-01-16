@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import es.tml.qnl.beans.statistics.PositionRequest;
+import es.tml.qnl.model.mongo.League;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.SeasonData;
 import es.tml.qnl.model.mongo.StatClassificationPosition;
@@ -18,6 +19,7 @@ import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.SeasonDataRepository;
 import es.tml.qnl.repositories.mongo.StatClassificationPositionRepository;
 import es.tml.qnl.services.statistics.ClassificationPositionService;
+import es.tml.qnl.util.TimeLeftEstimator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,6 +40,9 @@ public class ClassificationPositionServiceImpl implements ClassificationPosition
 	@Autowired
 	private RoundRepository roundRepository;
 	
+	@Autowired
+	private TimeLeftEstimator timeLeftEstimator;
+	
 	private Map<String, Integer> previousPositions = new HashMap<>();
 	
 	private int minRound;
@@ -45,25 +50,31 @@ public class ClassificationPositionServiceImpl implements ClassificationPosition
 	@Override
 	public void calculateClassificationPosition(PositionRequest request) {
 
-		// Assign minimum round
 		this.minRound = request.getMinRound();
+		List<SeasonData> seasonData = seasonDataRepository.findAll();
+		List<League> leagues = leagueRepository.findAll();
+		int totalCombinations = seasonData.size() * leagues.size();
+		timeLeftEstimator.init(totalCombinations);
 		
 		// Delete data from repository
 		statClassificationPositionRepository.deleteAll();
 		
 		// Calculate statistics
-		List<SeasonData> seasonData = seasonDataRepository.findAll();
-		
-		leagueRepository.findAll().forEach(league -> {
+		leagues.forEach(league -> {
 			seasonData.forEach(season -> {
-				log.debug("Calculating statistics for league '{}' and season '{}' from round '{}'",
-						league.getCode(), season.getYear(), minRound);
+				log.debug("Calculating statistics for league '{}' and season '{}' from round '{}' - Estimated time left: {}",
+						league.getCode(), season.getYear(), minRound, timeLeftEstimator.getTimeLeft());
+				
+				timeLeftEstimator.startPartial();
 				previousPositions.clear();
+				
 				roundRepository.findByLeagueAndSeasonSorted(
 						league.getCode(),
 						season.getYear(),
 						new Sort(ROUND_NUMBER))
 					.forEach(round -> calculateResults(round));
+				
+				timeLeftEstimator.finishPartial();
 			});
 		});
 	}

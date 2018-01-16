@@ -10,14 +10,14 @@ public class TimeLeftEstimator {
 	private long individualAverage;
 	private int totalElements;
 	private int actualElements;
-	private int sumatory;
+	private long sumatory;
 	private long partialInit;
 	private long totalEstimated;
 	
 	public void init(int totalElements) {
 		
+		reset();
 		this.totalElements = totalElements;
-		this.actualElements = 0;
 	}
 	
 	public void startPartial() {
@@ -29,7 +29,7 @@ public class TimeLeftEstimator {
 	public void finishPartial() {
 		
 		long partial = System.currentTimeMillis() - partialInit;
-		sumatory = sumatory + (int)partial;
+		sumatory = sumatory + partial;
 		individualAverage = sumatory / actualElements;
 		totalEstimated = (totalElements - actualElements) * individualAverage;
 	}
@@ -50,6 +50,16 @@ public class TimeLeftEstimator {
 			.append(seconds == 0 ? "" : seconds + "s ")
 			.append(total == 0 ? UNKNOWN : total + "ms")
 			.toString();
+	}
+	
+	public void reset() {
+		
+		individualAverage = 0L;
+		totalElements = 0;
+		actualElements = 0;
+		sumatory = 0;
+		partialInit = 0L;
+		totalEstimated = 0L;
 	}
 	
 }

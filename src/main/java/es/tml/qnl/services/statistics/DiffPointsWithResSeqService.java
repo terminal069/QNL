@@ -1,7 +1,9 @@
 package es.tml.qnl.services.statistics;
 
+import es.tml.qnl.beans.statistics.ResultSequenceRequest;
+
 public interface DiffPointsWithResSeqService {
 
-	void calculateDiffPointsWithResSeq(int maxIterations);
+	void calculateDiffPointsWithResSeq(ResultSequenceRequest request);
 
 }

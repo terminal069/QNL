@@ -20,6 +20,7 @@ import es.tml.qnl.services.statistics.ClassPosWithResSeqService;
 import es.tml.qnl.services.statistics.ClassificationPositionService;
 import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
+import es.tml.qnl.services.statistics.PositionPointsSequenceService;
 import es.tml.qnl.services.statistics.ResultSequenceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -49,6 +50,9 @@ public class StatisticsController {
 	
 	@Autowired
 	private ClassPosWithResSeqService classPosWithResSeqService;
+	
+	@Autowired
+	private PositionPointsSequenceService positionPointsSequenceService;
 
 	@PostMapping(value = "/aVsB")
 	@ResponseStatus(code = HttpStatus.CREATED)
@@ -79,7 +83,7 @@ public class StatisticsController {
 	})
 	public void resultSequence(@Valid @RequestBody ResultSequenceRequest request) {
 		
-		resultSequenceService.calculateResultSequence(request.getMaxIterations());
+		resultSequenceService.calculateResultSequence(request);
 	}
 	
 	@PostMapping(value = "/differenceOfPoints")
@@ -111,7 +115,7 @@ public class StatisticsController {
 	})
 	public void differenceOfPointsWithResultSequence(@Valid @RequestBody ResultSequenceRequest request) {
 		
-		diffPointsWithResSeqService.calculateDiffPointsWithResSeq(request.getMaxIterations());
+		diffPointsWithResSeqService.calculateDiffPointsWithResSeq(request);
 	}
 	
 	@PostMapping(value = "/position")
@@ -145,5 +149,22 @@ public class StatisticsController {
 	public void classificationPositionWithResultSequence(@Valid @RequestBody ClassPosResSeqRequest request) {
 		
 		classPosWithResSeqService.calculateClassPosWithResSeq(request);
+	}
+	
+	@PostMapping(value = "/positionPointsSequence")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Calculate statistics by position, difference of points and result sequence",
+			notes = "This service is used to calculate statistics based on the classification position, the "
+					+ "difference of points each team has and the result sequence of the teams, "
+					+ "and save them into repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void classificationPositionWithDifferenceOfPointsAndResultSequence(@Valid @RequestBody ClassPosResSeqRequest request) {
+		
+		positionPointsSequenceService.calculatePosDiffSeq(request);
 	}
 }
