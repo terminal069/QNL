@@ -11,9 +11,9 @@ import es.tml.qnl.beans.statistics.ClassPosResSeqRequest;
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
-import es.tml.qnl.model.mongo.StatClassPosResSeq;
+import es.tml.qnl.model.mongo.StatPositionSequence;
 import es.tml.qnl.repositories.mongo.RoundRepository;
-import es.tml.qnl.repositories.mongo.StatClassPosResSeqRepository;
+import es.tml.qnl.repositories.mongo.StatPositionSequenceRepository;
 import es.tml.qnl.services.statistics.ClassPosWithResSeqService;
 import es.tml.qnl.util.FIFOQueue;
 import es.tml.qnl.util.TimeLeftEstimator;
@@ -27,7 +27,7 @@ public class ClassPosWithResSeqServiceImpl implements ClassPosWithResSeqService 
 	private static final String ROUND_NUMBER = "roundNumber";
 	
 	@Autowired
-	private StatClassPosResSeqRepository statClassPosResSeqRepository;
+	private StatPositionSequenceRepository statClassPosResSeqRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
@@ -118,9 +118,9 @@ public class ClassPosWithResSeqServiceImpl implements ClassPosWithResSeqService 
 			
 			String sequence = fifoQueue.toStringFromHeadToTail();
 			
-			StatClassPosResSeq statClassPosResSeq = Optional
-				.ofNullable(statClassPosResSeqRepository.findByPositionDifferenceAndSequence(previousPositionDifference, sequence))
-				.orElse(new StatClassPosResSeq(previousPositionDifference, sequence));
+			StatPositionSequence statClassPosResSeq = Optional
+				.ofNullable(statClassPosResSeqRepository.findByPositionAndSequence(previousPositionDifference, sequence))
+				.orElse(new StatPositionSequence(previousPositionDifference, sequence));
 			
 			switch(result) {
 				case A: {

@@ -11,9 +11,9 @@ import es.tml.qnl.beans.statistics.ResultSequenceRequest;
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
-import es.tml.qnl.model.mongo.StatResultSequence;
+import es.tml.qnl.model.mongo.StatSequence;
 import es.tml.qnl.repositories.mongo.RoundRepository;
-import es.tml.qnl.repositories.mongo.StatResultSequenceRepository;
+import es.tml.qnl.repositories.mongo.StatSequenceRepository;
 import es.tml.qnl.services.statistics.ResultSequenceService;
 import es.tml.qnl.util.FIFOQueue;
 import es.tml.qnl.util.TimeLeftEstimator;
@@ -27,7 +27,7 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 	private static final String ROUND_NUMBER = "roundNumber";
 	
 	@Autowired
-	private StatResultSequenceRepository statResultSequenceRepository;
+	private StatSequenceRepository statResultSequenceRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
@@ -107,8 +107,8 @@ public class ResultSequenceServiceImpl implements ResultSequenceService {
 			
 			String sequence = fifoQueue.toStringFromHeadToTail();
 			
-			StatResultSequence statResultSequence = Optional.ofNullable(statResultSequenceRepository.findBySequence(sequence))
-				.orElse(new StatResultSequence(sequence));
+			StatSequence statResultSequence = Optional.ofNullable(statResultSequenceRepository.findBySequence(sequence))
+				.orElse(new StatSequence(sequence));
 			
 			switch(result) {
 				case A: {

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
-import es.tml.qnl.model.mongo.StatDifferenceOfPoints;
+import es.tml.qnl.model.mongo.StatPoints;
 import es.tml.qnl.repositories.mongo.RoundRepository;
-import es.tml.qnl.repositories.mongo.StatDifferenceOfPointsRepository;
+import es.tml.qnl.repositories.mongo.StatPointsRepository;
 import es.tml.qnl.services.statistics.DifferenceOfPointsService;
 import es.tml.qnl.util.TimeLeftEstimator;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService 
 	private Integer win;
 	
 	@Autowired
-	private StatDifferenceOfPointsRepository statDifferenceOfPointsRepository;
+	private StatPointsRepository statDifferenceOfPointsRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
@@ -81,8 +81,8 @@ public class DifferenceOfPointsServiceImpl implements DifferenceOfPointsService 
 		}
 		
 		// Get difference of points statistics and, if it doesn't exists, create one
-		StatDifferenceOfPoints statDifferenceOfPoints = Optional.ofNullable(statDifferenceOfPointsRepository.findByDifference(difference))
-				.orElse(new StatDifferenceOfPoints(difference));
+		StatPoints statDifferenceOfPoints = Optional.ofNullable(statDifferenceOfPointsRepository.findByPoints(difference))
+				.orElse(new StatPoints(difference));
 		
 		// Depending the result, increase the value of statistics
 		switch(result) {

@@ -6,12 +6,15 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Document(collection = "statAVsB")
-public class StatAVsB extends StatsBase {
+@Document(collection = "statPointsPositionSequence")
+public class StatPointsPositionSequence extends StatsBase {
 
 	@NonNull
-	private String local;
+	private Integer points;
 	
 	@NonNull
-	private String visitor;
+	private Integer position;
+	
+	@NonNull
+	private String sequence;
 }

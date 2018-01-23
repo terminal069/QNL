@@ -1,11 +1,11 @@
 package es.tml.qnl.data;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class Teams {
 
-	private static Set<String> teams = new HashSet<>();
+	private static Set<String> teams = new TreeSet<>();
 	
 	public static Set<String> getTeams() {
 		

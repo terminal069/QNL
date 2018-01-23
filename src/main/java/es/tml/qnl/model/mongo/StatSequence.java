@@ -6,9 +6,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Document(collection = "statDifferenceOfPoints")
-public class StatDifferenceOfPoints extends StatsBase {
+@Document(collection = "statSequence")
+public class StatSequence extends StatsBase {
 
 	@NonNull
-	private Integer difference;
+	private String sequence;
 }

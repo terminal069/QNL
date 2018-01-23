@@ -1,0 +1,437 @@
+{
+	"info": {
+		"name": "QNL",
+		"_postman_id": "7281f4ea-1835-0ba4-dd54-2ef3a5748695",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "catalog",
+			"description": "",
+			"item": [
+				{
+					"name": "qnl/catalog/seasons",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/catalog/seasons",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"catalog",
+								"seasons"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/catalog",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/catalog",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"catalog"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/catalog (with filter)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"leagueCode\": \"PRI\",\n\t\"fromSeasonCode\": 2002,\n\t\"toSeasonCode\": 2013\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/catalog",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"catalog"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/catalog/rounds?{roundNumber}&{seasonCode}&{leagueCode}&{local}&{visitor}",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8081/qnl/catalog/rounds?roundNumber=1&seasonCode=2015&leagueCode=PRI&local=Málaga&visitor=Sevilla",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"catalog",
+								"rounds"
+							],
+							"query": [
+								{
+									"key": "roundNumber",
+									"value": "1",
+									"equals": true
+								},
+								{
+									"key": "seasonCode",
+									"value": "2015",
+									"equals": true
+								},
+								{
+									"key": "leagueCode",
+									"value": "PRI",
+									"equals": true
+								},
+								{
+									"key": "local",
+									"value": "Málaga",
+									"equals": true
+								},
+								{
+									"key": "visitor",
+									"value": "Sevilla",
+									"equals": true
+								}
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/catalog/teams",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "localhost:8081/qnl/catalog/teams",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"catalog",
+								"teams"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "statistics",
+			"description": "",
+			"item": [
+				{
+					"name": "qnl/statistics/points",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/statistics/points",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"statistics",
+								"points"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/statistics/position",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"minRound\": 8\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/statistics/position",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"statistics",
+								"position"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/statistics/sequence",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"maxIterations\": 10\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/statistics/sequence",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"statistics",
+								"sequence"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/statistics/pointsPosition",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"minRound\": 8\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/statistics/pointsPosition",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"statistics",
+								"pointsPosition"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/statistics/pointsSequence",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"maxIterations\": 10\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/statistics/pointsSequence",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"statistics",
+								"pointsSequence"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/statistics/positionSequence",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\n\t\"minRound\": 8,\n\t\"maxIterations\": 10\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/statistics/positionSequence",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"statistics",
+								"positionSequence"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				},
+				{
+					"name": "qnl/statistics/pointsPositionSequence",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"minRound\": 8,\n\t\"maxIterations\": 10\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/statistics/pointsPositionSequence",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"statistics",
+								"pointsPositionSequence"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "prediction",
+			"description": "",
+			"item": [
+				{
+					"name": "qnl/prediction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"blablabla\",\n\t\"matches\": [\n\t\t{\n\t\t\t\"league\": \"PRI\",\n\t\t\t\"season\": 2017,\n\t\t\t\"round\": 23,\n\t\t\t\"local\": \"A\",\n\t\t\t\"visitor\": \"B\"\n\t\t},\n\t\t{\n\t\t\t\"league\": \"PRI\",\n\t\t\t\"season\": 2017,\n\t\t\t\"round\": 23,\n\t\t\t\"local\": \"E\",\n\t\t\t\"visitor\": \"F\"\n\t\t},\n\t\t{\n\t\t\t\"league\": \"SEG\",\n\t\t\t\"season\": 2017,\n\t\t\t\"round\": 26,\n\t\t\t\"local\": \"C\",\n\t\t\t\"visitor\": \"D\"\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "localhost:8081/qnl/prediction",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"qnl",
+								"prediction"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

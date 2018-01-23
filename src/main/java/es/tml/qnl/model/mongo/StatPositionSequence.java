@@ -6,11 +6,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Document(collection = "statDiffPointsResSeq")
-public class StatDiffPointsResSeq extends StatsBase {
+@Document(collection = "statPositionSequence")
+public class StatPositionSequence extends StatsBase {
 
 	@NonNull
-	private Integer difference;
+	private Integer position;
 	
 	@NonNull
 	private String sequence;

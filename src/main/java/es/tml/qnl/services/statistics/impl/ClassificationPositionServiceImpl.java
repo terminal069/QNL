@@ -13,11 +13,11 @@ import es.tml.qnl.beans.statistics.PositionRequest;
 import es.tml.qnl.model.mongo.League;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.model.mongo.SeasonData;
-import es.tml.qnl.model.mongo.StatClassificationPosition;
+import es.tml.qnl.model.mongo.StatPosition;
 import es.tml.qnl.repositories.mongo.LeagueRepository;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.repositories.mongo.SeasonDataRepository;
-import es.tml.qnl.repositories.mongo.StatClassificationPositionRepository;
+import es.tml.qnl.repositories.mongo.StatPositionRepository;
 import es.tml.qnl.services.statistics.ClassificationPositionService;
 import es.tml.qnl.util.TimeLeftEstimator;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class ClassificationPositionServiceImpl implements ClassificationPosition
 	private static final String ROUND_NUMBER = "roundNumber";
 
 	@Autowired
-	private StatClassificationPositionRepository statClassificationPositionRepository;
+	private StatPositionRepository statClassificationPositionRepository;
 	
 	@Autowired
 	private LeagueRepository leagueRepository;
@@ -89,9 +89,9 @@ public class ClassificationPositionServiceImpl implements ClassificationPosition
 			
 			int previousPosition = localPreviousPosition - visitorPreviousPosition;
 			
-			StatClassificationPosition statClassificationPosition = Optional.ofNullable(
-					statClassificationPositionRepository.findByPositionDifference(previousPosition))
-				.orElse(new StatClassificationPosition(previousPosition));
+			StatPosition statClassificationPosition = Optional.ofNullable(
+					statClassificationPositionRepository.findByPosition(previousPosition))
+				.orElse(new StatPosition(previousPosition));
 			
 			if (round.getLocalRes() > round.getVisitorRes()) {
 				statClassificationPosition.setLocalWinner(statClassificationPosition.getLocalWinner() + 1);

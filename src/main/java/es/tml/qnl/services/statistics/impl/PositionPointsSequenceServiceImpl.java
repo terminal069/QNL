@@ -12,9 +12,9 @@ import es.tml.qnl.beans.statistics.ClassPosResSeqRequest;
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
-import es.tml.qnl.model.mongo.StatPositionPointsSequence;
+import es.tml.qnl.model.mongo.StatPointsPositionSequence;
 import es.tml.qnl.repositories.mongo.RoundRepository;
-import es.tml.qnl.repositories.mongo.StatPositionPointsSequenceRepository;
+import es.tml.qnl.repositories.mongo.StatPointsPositionSequenceRepository;
 import es.tml.qnl.services.statistics.PositionPointsSequenceService;
 import es.tml.qnl.util.FIFOQueue;
 import es.tml.qnl.util.TimeLeftEstimator;
@@ -33,7 +33,7 @@ public class PositionPointsSequenceServiceImpl implements PositionPointsSequence
 	private Integer win;
 	
 	@Autowired
-	private StatPositionPointsSequenceRepository statPositionPointsSequenceRepository;
+	private StatPointsPositionSequenceRepository statPositionPointsSequenceRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
@@ -125,10 +125,10 @@ public class PositionPointsSequenceServiceImpl implements PositionPointsSequence
 			int difference = getDifferenceBeforeMatch(round);
 			String sequence = fifoQueue.toStringFromHeadToTail();
 			
-			StatPositionPointsSequence statPositionPointsSequence = Optional
+			StatPointsPositionSequence statPositionPointsSequence = Optional
 				.ofNullable(statPositionPointsSequenceRepository
-						.findByPositionAndPointsAndSequence(previousPositionDifference, difference, sequence))
-				.orElse(new StatPositionPointsSequence(previousPositionDifference, difference, sequence));
+						.findByPointsAndPositionAndSequence(difference, previousPositionDifference, sequence))
+				.orElse(new StatPointsPositionSequence(previousPositionDifference, difference, sequence));
 			
 			switch(result) {
 				case A: {

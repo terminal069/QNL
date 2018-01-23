@@ -12,9 +12,9 @@ import es.tml.qnl.beans.statistics.ResultSequenceRequest;
 import es.tml.qnl.data.Teams;
 import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
-import es.tml.qnl.model.mongo.StatDiffPointsResSeq;
+import es.tml.qnl.model.mongo.StatPointsSequence;
 import es.tml.qnl.repositories.mongo.RoundRepository;
-import es.tml.qnl.repositories.mongo.StatDiffPointsResSeqRepository;
+import es.tml.qnl.repositories.mongo.StatPointsSequenceRepository;
 import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
 import es.tml.qnl.util.FIFOQueue;
 import es.tml.qnl.util.TimeLeftEstimator;
@@ -33,7 +33,7 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 	private Integer win;
 	
 	@Autowired
-	private StatDiffPointsResSeqRepository statDiffPointsResSeqRepository;
+	private StatPointsSequenceRepository statDiffPointsResSeqRepository;
 	
 	@Autowired
 	private RoundRepository roundRepository;
@@ -113,9 +113,9 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 			int difference = getDifferenceBeforeMatch(round);
 			String sequence = fifoQueue.toStringFromHeadToTail();
 			
-			StatDiffPointsResSeq statDiffPointsResSeq = Optional
-					.ofNullable(statDiffPointsResSeqRepository.findByDifferenceAndSequence(difference, sequence))
-					.orElse(new StatDiffPointsResSeq(difference, sequence));
+			StatPointsSequence statDiffPointsResSeq = Optional
+					.ofNullable(statDiffPointsResSeqRepository.findByPointsAndSequence(difference, sequence))
+					.orElse(new StatPointsSequence(difference, sequence));
 			
 			switch(result) {
 				case A: {

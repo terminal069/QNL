@@ -6,12 +6,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Document(collection = "statPositionPointsSequence")
-public class StatPositionPointsSequence extends StatsBase {
+@Document(collection = "statPointsSequence")
+public class StatPointsSequence extends StatsBase {
 
-	@NonNull
-	private Integer position;
-	
 	@NonNull
 	private Integer points;
 	
