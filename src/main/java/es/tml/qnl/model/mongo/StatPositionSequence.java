@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Document(collection = "statPositionSequence")
-public class StatPositionSequence extends StatsBase {
+public class StatPositionSequence extends StatsModelBase {
 
 	@NonNull
 	private Integer position;

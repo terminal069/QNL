@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public abstract class StatsBase {
+public abstract class StatsModelBase {
 
 	@Id
 	private String id;

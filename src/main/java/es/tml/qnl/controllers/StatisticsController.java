@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.tml.qnl.beans.statistics.StatisticsRequest;
-import es.tml.qnl.enums.StatisticsType;
 import es.tml.qnl.services.statistics.StatisticsService;
+import es.tml.qnl.services.statistics.util.StatisticsType.StatisticType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -29,6 +29,21 @@ public class StatisticsController {
 	@Autowired
 	private StatisticsService statisticsService;
 	
+	@PostMapping(value = "/all")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Calculate all statistics",
+			notes = "This service is used to calculate all statistics and save them into repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void all(@Valid @RequestBody StatisticsRequest request) {
+		
+		statisticsService.calculateStatistics(request, StatisticType.ALL);
+	}
+	
 	@PostMapping(value = "/points")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@ApiOperation(
@@ -42,7 +57,7 @@ public class StatisticsController {
 	})
 	public void points() {
 		
-		statisticsService.calculateStatistics(null, StatisticsType.POINTS);
+		statisticsService.calculateStatistics(null, StatisticType.POINTS);
 	}
 	
 	@PostMapping(value = "/position")
@@ -59,7 +74,7 @@ public class StatisticsController {
 	})
 	public void position(@Valid @RequestBody StatisticsRequest request) {
 		
-		statisticsService.calculateStatistics(request, StatisticsType.POSITION);
+		statisticsService.calculateStatistics(request, StatisticType.POSITION);
 	}
 
 	@PostMapping(value = "/sequence")
@@ -75,7 +90,7 @@ public class StatisticsController {
 	})
 	public void sequence(@Valid @RequestBody StatisticsRequest request) {
 		
-		statisticsService.calculateStatistics(request, StatisticsType.SEQUENCE);
+		statisticsService.calculateStatistics(request, StatisticType.SEQUENCE);
 	}
 	
 	@PostMapping(value = "/pointsPosition")
@@ -91,7 +106,7 @@ public class StatisticsController {
 	})
 	public void pointsPosition(@Valid @RequestBody StatisticsRequest request) {
 		
-		statisticsService.calculateStatistics(request, StatisticsType.POINTS_POSITION);
+		statisticsService.calculateStatistics(request, StatisticType.POINTS_POSITION);
 	}
 	
 	@PostMapping(value = "/pointsSequence")
@@ -107,7 +122,7 @@ public class StatisticsController {
 	})
 	public void pointsSequence(@Valid @RequestBody StatisticsRequest request) {
 		
-		statisticsService.calculateStatistics(request, StatisticsType.POINTS_SEQUENCE);
+		statisticsService.calculateStatistics(request, StatisticType.POINTS_SEQUENCE);
 	}
 	
 	@PostMapping(value = "/positionSequence")
@@ -123,7 +138,7 @@ public class StatisticsController {
 	})
 	public void positionSequence(@Valid @RequestBody StatisticsRequest request) {
 		
-		statisticsService.calculateStatistics(request, StatisticsType.POSITION_SEQUENCE);
+		statisticsService.calculateStatistics(request, StatisticType.POSITION_SEQUENCE);
 	}
 	
 	@PostMapping(value = "/pointsPositionSequence")
@@ -140,6 +155,6 @@ public class StatisticsController {
 	})
 	public void pointsPositionSequence(@Valid @RequestBody StatisticsRequest request) {
 		
-		statisticsService.calculateStatistics(request, StatisticsType.POINTS_POSITION_SEQUENCE);
+		statisticsService.calculateStatistics(request, StatisticType.POINTS_POSITION_SEQUENCE);
 	}
 }
