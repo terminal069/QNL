@@ -12,16 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.tml.qnl.beans.statistics.ClassPosResSeqRequest;
-import es.tml.qnl.beans.statistics.PositionRequest;
-import es.tml.qnl.beans.statistics.ResultSequenceRequest;
-import es.tml.qnl.services.statistics.AVsBService;
-import es.tml.qnl.services.statistics.ClassPosWithResSeqService;
-import es.tml.qnl.services.statistics.ClassificationPositionService;
-import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
-import es.tml.qnl.services.statistics.DifferenceOfPointsService;
-import es.tml.qnl.services.statistics.PositionPointsSequenceService;
-import es.tml.qnl.services.statistics.ResultSequenceService;
+import es.tml.qnl.beans.statistics.StatisticsRequest;
+import es.tml.qnl.services.statistics.StatisticsService;
+import es.tml.qnl.services.statistics.util.StatisticsType.StatisticType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -34,59 +27,24 @@ import io.swagger.annotations.ApiResponses;
 public class StatisticsController {
 	
 	@Autowired
-	private AVsBService aVsBService;
+	private StatisticsService statisticsService;
 	
-	@Autowired
-	private ResultSequenceService resultSequenceService;
-	
-	@Autowired
-	private DifferenceOfPointsService differenceOfPointsService;
-	
-	@Autowired
-	private DiffPointsWithResSeqService diffPointsWithResSeqService;
-	
-	@Autowired
-	private ClassificationPositionService classificationPositionService;
-	
-	@Autowired
-	private ClassPosWithResSeqService classPosWithResSeqService;
-	
-	@Autowired
-	private PositionPointsSequenceService positionPointsSequenceService;
-
-	@PostMapping(value = "/aVsB")
+	@PostMapping(value = "/all")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@ApiOperation(
-			value = "Calculate A vs B statistics",
-			notes = "This service is used to calculate statistics from encounters of two teams and save "
-					+ "them into repository")
+			value = "Calculate all statistics",
+			notes = "This service is used to calculate all statistics and save them into repository")
 	@ApiResponses({
 		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
 		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
 	})
-	public void aVsB() {
+	public void all(@Valid @RequestBody StatisticsRequest request) {
 		
-		aVsBService.calculateAVsB();
+		statisticsService.calculateStatistics(request, StatisticType.ALL);
 	}
 	
-	@PostMapping(value = "/resultSequence")
-	@ResponseStatus(code = HttpStatus.CREATED)
-	@ApiOperation(
-			value = "Calculate result sequence statistics",
-			notes = "This service is used to calculate statistics from the result sequence of all teams and "
-					+ "save them into repository")
-	@ApiResponses({
-		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
-		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
-		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
-	})
-	public void resultSequence(@Valid @RequestBody ResultSequenceRequest request) {
-		
-		resultSequenceService.calculateResultSequence(request);
-	}
-	
-	@PostMapping(value = "/differenceOfPoints")
+	@PostMapping(value = "/points")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@ApiOperation(
 			value = "Calculate difference of points statistics",
@@ -97,25 +55,9 @@ public class StatisticsController {
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
 		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
 	})
-	public void differenceOfPoints() {
+	public void points() {
 		
-		differenceOfPointsService.calculateDifferenceOfPoints();
-	}
-	
-	@PostMapping(value = "/diffPointsResSeq")
-	@ResponseStatus(code = HttpStatus.CREATED)
-	@ApiOperation(
-			value = "Calculate difference of points and result sequence statistics",
-			notes = "This service is used to calculate statistics from the result sequence of all teams and "
-					+ "the difference of points each team has and save them into repository")
-	@ApiResponses({
-		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
-		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
-		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
-	})
-	public void differenceOfPointsWithResultSequence(@Valid @RequestBody ResultSequenceRequest request) {
-		
-		diffPointsWithResSeqService.calculateDiffPointsWithResSeq(request);
+		statisticsService.calculateStatistics(null, StatisticType.POINTS);
 	}
 	
 	@PostMapping(value = "/position")
@@ -130,12 +72,60 @@ public class StatisticsController {
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
 		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
 	})
-	public void classificationPosition(@Valid @RequestBody PositionRequest request) {
+	public void position(@Valid @RequestBody StatisticsRequest request) {
 		
-		classificationPositionService.calculateClassificationPosition(request);
+		statisticsService.calculateStatistics(request, StatisticType.POSITION);
+	}
+
+	@PostMapping(value = "/sequence")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Calculate result sequence statistics",
+			notes = "This service is used to calculate statistics from the result sequence of all teams and "
+					+ "save them into repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void sequence(@Valid @RequestBody StatisticsRequest request) {
+		
+		statisticsService.calculateStatistics(request, StatisticType.SEQUENCE);
 	}
 	
-	@PostMapping(value = "/classPosResSeq")
+	@PostMapping(value = "/pointsPosition")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Calculate difference of points and difference of position statistics",
+			notes = "This service is used to calculate statistics based on the difference of points each "
+					+ "team has and the classification position, and save them into repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void pointsPosition(@Valid @RequestBody StatisticsRequest request) {
+		
+		statisticsService.calculateStatistics(request, StatisticType.POINTS_POSITION);
+	}
+	
+	@PostMapping(value = "/pointsSequence")
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@ApiOperation(
+			value = "Calculate difference of points and result sequence statistics",
+			notes = "This service is used to calculate statistics from the result sequence of all teams and "
+					+ "the difference of points each team has and save them into repository")
+	@ApiResponses({
+		@ApiResponse(code = HttpServletResponse.SC_CREATED, message = "Properly calculated statistics"),
+		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
+		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
+	})
+	public void pointsSequence(@Valid @RequestBody StatisticsRequest request) {
+		
+		statisticsService.calculateStatistics(request, StatisticType.POINTS_SEQUENCE);
+	}
+	
+	@PostMapping(value = "/positionSequence")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@ApiOperation(
 			value = "Calculate statistics by position and result sequence",
@@ -146,12 +136,12 @@ public class StatisticsController {
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
 		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
 	})
-	public void classificationPositionWithResultSequence(@Valid @RequestBody ClassPosResSeqRequest request) {
+	public void positionSequence(@Valid @RequestBody StatisticsRequest request) {
 		
-		classPosWithResSeqService.calculateClassPosWithResSeq(request);
+		statisticsService.calculateStatistics(request, StatisticType.POSITION_SEQUENCE);
 	}
 	
-	@PostMapping(value = "/positionPointsSequence")
+	@PostMapping(value = "/pointsPositionSequence")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@ApiOperation(
 			value = "Calculate statistics by position, difference of points and result sequence",
@@ -163,8 +153,8 @@ public class StatisticsController {
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),
 		@ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal server error")
 	})
-	public void classificationPositionWithDifferenceOfPointsAndResultSequence(@Valid @RequestBody ClassPosResSeqRequest request) {
+	public void pointsPositionSequence(@Valid @RequestBody StatisticsRequest request) {
 		
-		positionPointsSequenceService.calculatePosDiffSeq(request);
+		statisticsService.calculateStatistics(request, StatisticType.POINTS_POSITION_SEQUENCE);
 	}
 }

@@ -1,4 +1,4 @@
-package es.tml.qnl.enums;
+package es.tml.qnl.util.enums;
 
 public enum Result {
 

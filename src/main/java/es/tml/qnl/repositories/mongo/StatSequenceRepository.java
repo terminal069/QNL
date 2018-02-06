@@ -3,11 +3,11 @@ package es.tml.qnl.repositories.mongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import es.tml.qnl.model.mongo.StatResultSequence;
+import es.tml.qnl.model.mongo.StatSequence;
 
-public interface StatResultSequenceRepository extends MongoRepository<StatResultSequence, String> {
+public interface StatSequenceRepository extends MongoRepository<StatSequence, String> {
 
 	@Query(value = "{ 'sequence': ?0 }")
-	StatResultSequence findBySequence(String sequence);
+	StatSequence findBySequence(String sequence);
 	
 }

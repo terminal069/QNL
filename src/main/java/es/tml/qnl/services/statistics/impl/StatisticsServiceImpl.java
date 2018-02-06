@@ -1,6 +1,5 @@
 package es.tml.qnl.services.statistics.impl;
 
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,22 +7,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import es.tml.qnl.beans.statistics.ResultSequenceRequest;
+import es.tml.qnl.beans.statistics.StatisticsRequest;
 import es.tml.qnl.data.Teams;
-import es.tml.qnl.enums.Result;
 import es.tml.qnl.model.mongo.Round;
-import es.tml.qnl.model.mongo.StatDiffPointsResSeq;
 import es.tml.qnl.repositories.mongo.RoundRepository;
-import es.tml.qnl.repositories.mongo.StatDiffPointsResSeqRepository;
-import es.tml.qnl.services.statistics.DiffPointsWithResSeqService;
+import es.tml.qnl.services.statistics.StatisticsService;
+import es.tml.qnl.services.statistics.util.StatisticsType;
+import es.tml.qnl.services.statistics.util.StatisticsType.StatisticType;
 import es.tml.qnl.util.FIFOQueue;
 import es.tml.qnl.util.TimeLeftEstimator;
+import es.tml.qnl.util.enums.Result;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqService {
+public class StatisticsServiceImpl implements StatisticsService {
 
+	private static final int DEFAULT_MIN_ROUND = 1;
+	private static final int DEFAUL_MAX_ITERATIONS = 1;
 	private static final String SEASON_CODE = "seasonCode";
 	private static final String ROUND_NUMBER = "roundNumber";
 	
@@ -33,55 +34,71 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 	private Integer win;
 	
 	@Autowired
-	private StatDiffPointsResSeqRepository statDiffPointsResSeqRepository;
-	
-	@Autowired
-	private RoundRepository roundRepository;
-	
-	@Autowired
 	private FIFOQueue<Result> fifoQueue;
 	
 	@Autowired
 	private TimeLeftEstimator timeLeftEstimator;
 	
+	@Autowired
+	private RoundRepository roundRepository;
+	
+	@Autowired
+	private StatisticsType statisticsType;
+	
+	private int minRound;
 	private int maxIterations;
 	private int totalTeams;
 	private int posActualTeam;
+	private StatisticType statisticType;
 	
 	@Override
-	public void calculateDiffPointsWithResSeq(ResultSequenceRequest request) {
+	public void calculateStatistics(StatisticsRequest request, StatisticType statisticType) {
 
-		maxIterations = request.getMaxIterations();
+		initializeRequestParameters(request);
+		
 		totalTeams = Teams.getTeams().size();
 		timeLeftEstimator.init(maxIterations * totalTeams);
 		
-		// Delete all data from repository
-		statDiffPointsResSeqRepository.deleteAll();
+		this.statisticType = statisticType;
+		statisticsType.deleteOldData(this.statisticType);
 		
-		// Iterate and calculate results for each sequence
+		// Calculate statistics for each team
 		IntStream.rangeClosed(1, maxIterations).forEach(iterationNumber -> {
-			fifoQueue.clear();
 			fifoQueue.setSize(iterationNumber);
 			performIteration(iterationNumber);
 		});
 	}
+
+	private void initializeRequestParameters(StatisticsRequest request) {
+
+		if (request == null) {
+			
+			minRound = DEFAULT_MIN_ROUND;
+			maxIterations = DEFAUL_MAX_ITERATIONS;
+		}
+		else {
+			minRound = request.getMinRound() == null ? DEFAULT_MIN_ROUND : request.getMinRound();
+			maxIterations = request.getMaxIterations() == null ? DEFAUL_MAX_ITERATIONS : request.getMaxIterations();
+		}
+	}
 	
 	private void performIteration(int iterationNumber) {
-		
-		log.debug("Performing iteration with a sequence of {} elements", iterationNumber);
-		
+
 		posActualTeam = 1;
 		
 		Teams.getTeams().forEach(team -> {
+			
 			log.debug("Iteration {}/{} - Team {}/{} - Estimated time left: {}",
 					iterationNumber, maxIterations, posActualTeam, totalTeams, timeLeftEstimator.getTimeLeft());
 			
 			timeLeftEstimator.startPartial();
+			fifoQueue.clear();
 			roundRepository.findByTeamSorted(team, new Sort(SEASON_CODE, ROUND_NUMBER)).forEach(round -> {
-				calculateDifferenceAndSequence(
+				processStatistic(
 						round,
 						iterationNumber,
-						calculateResult(team, round));
+						calculateResult(team, round),
+						team);
 			});
 			
 			posActualTeam++;
@@ -105,39 +122,48 @@ public class DiffPointsWithResSeqServiceImpl implements DiffPointsWithResSeqServ
 		return result;
 	}
 	
-	private void calculateDifferenceAndSequence(Round round, int iterationNumber, Result result) {
+	private void processStatistic(Round round, int iterationNumber, Result result, String team) {
+
+		Integer position = null;
 		
 		if (fifoQueue.getQueueSize() == iterationNumber
-				&& round.getRoundNumber() > iterationNumber) {
+				&& round.getRoundNumber() > iterationNumber
+				&& round.getRoundNumber() >= minRound
+				&& (position = calculatePreviousPosition(
+						round.getLeagueCode(),
+						round.getSeasonCode(),
+						round.getRoundNumber(),
+						team)) != null) {
 			
-			int difference = getDifferenceBeforeMatch(round);
+			Integer points = getDifferenceBeforeMatch(round);
 			String sequence = fifoQueue.toStringFromHeadToTail();
 			
-			StatDiffPointsResSeq statDiffPointsResSeq = Optional
-					.ofNullable(statDiffPointsResSeqRepository.findByDifferenceAndSequence(difference, sequence))
-					.orElse(new StatDiffPointsResSeq(difference, sequence));
-			
-			switch(result) {
-				case A: {
-					statDiffPointsResSeq.setLocalWinner(statDiffPointsResSeq.getLocalWinner() + 1);
-					break;
-				}
-				case B: {
-					statDiffPointsResSeq.setTied(statDiffPointsResSeq.getTied() + 1);
-					break;
-				}
-				case C: {
-					statDiffPointsResSeq.setVisitorWinner(statDiffPointsResSeq.getVisitorWinner() + 1);
-					break;
-				}
-			}
-			
-			statDiffPointsResSeqRepository.save(statDiffPointsResSeq);
+			statisticsType.saveStatistic(statisticType, points, position, sequence, result);
 		}
 		
 		fifoQueue.push(result);
 	}
-
+	
+	private Integer calculatePreviousPosition(String leagueCode, int seasonCode, int roundNumber, String team) {
+		
+		Integer previousPositionDifference = null;
+		
+		if (roundNumber > 1) {
+			
+			Round round = roundRepository.findbyLeagueAndSeasonAndRoundAndTeam(
+					leagueCode,
+					seasonCode,
+					roundNumber - 1,
+					team);
+			
+			if (round != null) {
+				previousPositionDifference = round.getLocalPosition() - round.getVisitorPosition();
+			}
+		}
+		
+		return previousPositionDifference;
+	}
+	
 	private int getDifferenceBeforeMatch(Round round) {
 		
 		int difference;
