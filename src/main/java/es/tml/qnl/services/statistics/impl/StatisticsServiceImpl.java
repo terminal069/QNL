@@ -14,6 +14,7 @@ import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.services.statistics.StatisticsService;
 import es.tml.qnl.services.statistics.util.StatisticsType;
 import es.tml.qnl.services.statistics.util.StatisticsType.StatisticType;
+import es.tml.qnl.services.statistics.util.StatisticsUtils;
 import es.tml.qnl.util.FIFOQueue;
 import es.tml.qnl.util.TimeLeftEstimator;
 import es.tml.qnl.util.enums.Result;
@@ -24,14 +25,18 @@ import lombok.extern.slf4j.Slf4j;
 public class StatisticsServiceImpl implements StatisticsService {
 
 	private static final int DEFAULT_MIN_ROUND = 1;
-	private static final int DEFAUL_MAX_ITERATIONS = 1;
+	private static final int DEFAULT_MAX_ITERATIONS = 1;
 	private static final String SEASON_CODE = "seasonCode";
 	private static final String ROUND_NUMBER = "roundNumber";
 	
 	private static final String QNL_POINTS_WIN = "qnl.points.win";
+	private static final String QNL_DEFAULT_MAX_ITERATIONS = "qnl.defaultMaxIterations";
 	
 	@Value("${" + QNL_POINTS_WIN + "}")
 	private Integer win;
+	
+	@Value("${" + QNL_DEFAULT_MAX_ITERATIONS + "}")
+	private Integer qnlDefaultMaxIterations;
 	
 	@Autowired
 	private FIFOQueue<Result> fifoQueue;
@@ -44,6 +49,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 	
 	@Autowired
 	private StatisticsType statisticsType;
+	
+	@Autowired
+	private StatisticsUtils statisticsUtils;
 	
 	private int minRound;
 	private int maxIterations;
@@ -69,19 +77,30 @@ public class StatisticsServiceImpl implements StatisticsService {
 		});
 	}
 
+	/**
+	 * Initialize request paremeters
+	 * 
+	 * @param request Request data
+	 */
 	private void initializeRequestParameters(StatisticsRequest request) {
 
 		if (request == null) {
-			
 			minRound = DEFAULT_MIN_ROUND;
-			maxIterations = DEFAUL_MAX_ITERATIONS;
+			maxIterations = DEFAULT_MAX_ITERATIONS;
 		}
 		else {
 			minRound = request.getMinRound() == null ? DEFAULT_MIN_ROUND : request.getMinRound();
-			maxIterations = request.getMaxIterations() == null ? DEFAUL_MAX_ITERATIONS : request.getMaxIterations();
+			maxIterations = request.getMaxIterations() == null ? DEFAULT_MAX_ITERATIONS : request.getMaxIterations();
 		}
+		
+		maxIterations = maxIterations > qnlDefaultMaxIterations ? qnlDefaultMaxIterations : maxIterations;
 	}
 	
+	/**
+	 * Iterate for each team
+	 * 
+	 * @param iterationNumber Iteration number
+	 */
 	private void performIteration(int iterationNumber) {
 
 		posActualTeam = 1;
@@ -106,6 +125,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 		});
 	}
 	
+	/**
+	 * Calculates result for a team and a round 
+	 * 
+	 * @param name Team name
+	 * @param round Round
+	 * @return Result
+	 */
 	private Result calculateResult(String name, Round round) {
 		
 		Result result = null;
@@ -122,6 +148,14 @@ public class StatisticsServiceImpl implements StatisticsService {
 		return result;
 	}
 	
+	/**
+	 * Save statistic based on statistic type
+	 * 
+	 * @param round Round
+	 * @param iterationNumber Iteration number
+	 * @param result Result
+	 * @param team Team
+	 */
 	private void processStatistic(Round round, int iterationNumber, Result result, String team) {
 
 		Integer position = null;
@@ -129,13 +163,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 		if (fifoQueue.getQueueSize() == iterationNumber
 				&& round.getRoundNumber() > iterationNumber
 				&& round.getRoundNumber() >= minRound
-				&& (position = calculatePreviousPosition(
-						round.getLeagueCode(),
-						round.getSeasonCode(),
-						round.getRoundNumber(),
-						team)) != null) {
+				&& (position = statisticsUtils.getPositionBeforeMatch(round)) != null) {
 			
-			Integer points = getDifferenceBeforeMatch(round);
+			Integer points = statisticsUtils.getPointsBeforeMatch(round);
 			String sequence = fifoQueue.toStringFromHeadToTail();
 			
 			statisticsType.saveStatistic(statisticType, points, position, sequence, result);
@@ -143,44 +173,4 @@ public class StatisticsServiceImpl implements StatisticsService {
 		
 		fifoQueue.push(result);
 	}
-	
-	private Integer calculatePreviousPosition(String leagueCode, int seasonCode, int roundNumber, String team) {
-		
-		Integer previousPositionDifference = null;
-		
-		if (roundNumber > 1) {
-			
-			Round round = roundRepository.findbyLeagueAndSeasonAndRoundAndTeam(
-					leagueCode,
-					seasonCode,
-					roundNumber - 1,
-					team);
-			
-			if (round != null) {
-				previousPositionDifference = round.getLocalPosition() - round.getVisitorPosition();
-			}
-		}
-		
-		return previousPositionDifference;
-	}
-	
-	private int getDifferenceBeforeMatch(Round round) {
-		
-		int difference;
-		int localPoints = round.getLocalPoints();
-		int visitorPoints = round.getVisitorPoints();
-		
-		if (round.getLocalRes() - round.getVisitorRes() > 0) {
-			difference = localPoints - visitorPoints - win;
-		}
-		else if (round.getLocalRes() == round.getVisitorRes()) {
-			difference = localPoints - visitorPoints;
-		}
-		else {
-			difference = localPoints - visitorPoints + win;
-		}
-		
-		return difference;
-	}
-
 }

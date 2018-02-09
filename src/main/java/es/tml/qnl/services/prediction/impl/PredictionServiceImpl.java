@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import es.tml.qnl.beans.prediction.PredictionRequest;
 import es.tml.qnl.beans.prediction.PredictionResponse;
+import es.tml.qnl.beans.prediction.Match;
 import es.tml.qnl.beans.prediction.Prediction;
 import es.tml.qnl.repositories.mongo.RoundPredictionRepository;
 import es.tml.qnl.repositories.mongo.SeasonRepository;
@@ -41,7 +42,7 @@ public class PredictionServiceImpl implements PredictionService {
 		roundPredictionRepository.deleteAll();
 		
 		// Load current data from web
-		loadCurrentData(request);
+		loadCurrentData(request.getMatches());
 		
 		// Make prediction with data collected
 		List<Prediction> predictions = predictor.predict(request.getMatches());
@@ -52,18 +53,28 @@ public class PredictionServiceImpl implements PredictionService {
 				predictions);
 	}
 
-	private void loadCurrentData(PredictionRequest request) {
+	/**
+	 * Loads data into the repository for each match of the list
+	 * 
+	 * @param matches List of matches
+	 */
+	private void loadCurrentData(List<Match> matches) {
 
-		groupData(request) // Group data request by league, season and round
-			.forEach(group -> parseData(group)); // With data grouped, parse round data from web
+		groupData(matches) // Groups data
+			.forEach(group -> parseData(group)); // With data grouped, parses round data from web
 	}
 	
-	private List<String> groupData(PredictionRequest request) {
+	/**
+	 * Groups data by league, season and round with the pattern {@code league:season:round}
+	 * 
+	 * @param matches List of matches
+	 * @return A list of grouped data
+	 */
+	private List<String> groupData(List<Match> matches) {
 		
 		List<String> groupedData = new ArrayList<>();
 		
-		request.getMatches()
-			.stream()
+		matches.stream()
 			.map(match -> new StringBuilder()
 					.append(match.getLeague())
 					.append(COLON)
@@ -82,6 +93,12 @@ public class PredictionServiceImpl implements PredictionService {
 		return groupedData;
 	}
 	
+	/**
+	 * For a group of data with the pattern {@code league:season:round}, parses this data and
+	 * loads it into the data base
+	 * 
+	 * @param group Group of data
+	 */
 	private void parseData(String group) {
 		
 		String[] groupSplitted = group.split(COLON);
