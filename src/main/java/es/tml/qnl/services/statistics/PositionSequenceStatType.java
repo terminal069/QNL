@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import es.tml.qnl.model.mongo.StatPositionSequence;
+import es.tml.qnl.model.mongo.StatsModelBase;
 import es.tml.qnl.repositories.mongo.StatPositionSequenceRepository;
 import es.tml.qnl.util.enums.Result;
 
@@ -29,6 +30,12 @@ public class PositionSequenceStatType extends BaseStatType {
 				.orElse(new StatPositionSequence(position, sequence));
 		setResult(stat, result);
 		statPositionSequenceRepository.save(stat);
+	}
+
+	@Override
+	public StatsModelBase getStatistic(Integer points, Integer position, String sequence) {
+
+		return statPositionSequenceRepository.findByPositionAndSequence(position, sequence);
 	}
 
 }

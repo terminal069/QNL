@@ -1,7 +1,9 @@
 package es.tml.qnl.services.prediction.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,6 +75,7 @@ public class PredictionServiceImpl implements PredictionService {
 	private List<String> groupData(List<Match> matches) {
 		
 		List<String> groupedData = new ArrayList<>();
+		Map<String, String> groupMap = new HashMap<>();
 		
 		matches.stream()
 			.map(match -> new StringBuilder()
@@ -83,8 +86,23 @@ public class PredictionServiceImpl implements PredictionService {
 					.append(match.getRound())
 					.toString())
 			.forEach(group -> {
-				if (!groupedData.contains(group)) {
+				String prefix = group.substring(0, group.lastIndexOf(COLON));
+				String groupValue = groupMap.get(prefix);
+				
+				if (groupValue == null) {
+					groupMap.put(prefix, group);
 					groupedData.add(group);
+				}
+				else {
+					int valueRound = Integer.parseInt(group.substring(group.lastIndexOf(COLON) + 1));
+					int groupValueRound = Integer.parseInt(groupValue.substring(groupValue.lastIndexOf(COLON) + 1));
+					
+					if (valueRound > groupValueRound) {
+						groupMap.put(prefix, group);
+						groupedData.remove(groupValue);
+						groupedData.add(group);
+					}
+					
 				}
 			});
 		

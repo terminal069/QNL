@@ -4,8 +4,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Document(collection = "roundPrediction")
+@NoArgsConstructor
 public class RoundPrediction extends GenericRound {
 	
 	public RoundPrediction(int roundNumber, int seasonCode, String leagueCode, String local, String visitor,
@@ -21,4 +21,5 @@ public class RoundPrediction extends GenericRound {
 		super(roundNumber, seasonCode, leagueCode, local, visitor, localRes, visitorRes,
 				localPoints, visitorPoints, localPosition, visitorPosition);
 	}
+	
 }

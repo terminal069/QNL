@@ -9,6 +9,8 @@ public abstract class BaseStatType {
 	
 	public abstract void saveStatistic(Integer points, Integer position, String sequence, Result result);
 	
+	public abstract StatsModelBase getStatistic(Integer points, Integer position, String sequence);
+	
 	protected void setResult(StatsModelBase statsBase, Result result) {
 		
 		switch(result) {

@@ -4,9 +4,11 @@ import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Prediction {
 
 	private static final String NO_DATA_AVAILABLE = "NO_DATA_AVAILABLE";
@@ -23,19 +25,4 @@ public class Prediction {
 	
 	private BigDecimal visitorWinProbability;
 	
-	/**
-	 * Constructor with local and visitor teams and no more data. The rest of parameters
-	 * are initialized with default values
-	 * 
-	 * @param local Local team
-	 * @param visitor Visitor team
-	 */
-	public Prediction (String local, String visitor) {
-		this.local = local;
-		this.visitor = visitor;
-		this.prediction = NO_DATA_AVAILABLE;
-		this.localWinProbability = BigDecimal.ZERO;
-		this.drawProbability = BigDecimal.ZERO;
-		this.visitorWinProbability = BigDecimal.ZERO;
-	}
 }

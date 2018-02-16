@@ -6,23 +6,33 @@ spring:
     name: qnl
   data:
     mongodb:
+      database: qnl
       host: localhost
       port: 27017
-      database: qnl
 
 qnl:
   dataParser:
       classTag:
+        local: localrr
+        localRes: marcalocalrr
+        result: resultatr_in
         round: jornadai
         roundPrefix: ij
-        result: resultatr_in
-        local: localrr
         visitor: visitantrr
-        localRes: marcalocalrr
         visitorRes: marcavisitantrr
       notDisputed: "-"
+  defaultMaxIterations: 10
   points:
     win: 3
     draw: 1
     lose: 0
-  defaultMaxIterations: 10
+  statistics:
+    minDataQuantityToBeValid: 10
+    weight:
+      points: 0.1
+      position: 0.1
+      sequence: 0.1
+      pointsPosition: 0.1
+      pointsSequence: 0.1
+      positionSequence: 0.1
+      pointsPositionSequence: 0.4

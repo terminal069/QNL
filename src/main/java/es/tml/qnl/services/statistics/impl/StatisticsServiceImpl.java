@@ -116,36 +116,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 				processStatistic(
 						round,
 						iterationNumber,
-						calculateResult(team, round),
+						statisticsUtils.calculateResult(team, round),
 						team);
 			});
 			
 			posActualTeam++;
 			timeLeftEstimator.finishPartial();
 		});
-	}
-	
-	/**
-	 * Calculates result for a team and a round 
-	 * 
-	 * @param name Team name
-	 * @param round Round
-	 * @return Result
-	 */
-	private Result calculateResult(String name, Round round) {
-		
-		Result result = null;
-		
-		if (round.getLocal().equals(name)) {
-			result = round.getLocalRes() > round.getVisitorRes() ? Result.A :
-				round.getLocalRes() == round.getVisitorRes() ? Result.B : Result.C;
-		}
-		else {
-			result = round.getVisitorRes() > round.getLocalRes() ? Result.A :
-				round.getVisitorRes() == round.getLocalRes() ? Result.B : Result.C;
-		}
-		
-		return result;
 	}
 	
 	/**

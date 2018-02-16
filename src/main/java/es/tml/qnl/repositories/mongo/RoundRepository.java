@@ -23,19 +23,9 @@ public interface RoundRepository extends MongoRepository<Round, String> {
 	List<Round> findByRoundAndSeasonAndLeagueAndLocalAndVisitor(Integer roundNumber, Integer seasonCode,
 			String leagueCode, String local, String visitor);
 	
-	@Query(value = "{ 'local': ?0, 'visitor': ?1 }")
-	List<Round> findByLocalAndVisitor(String local, String visitor);
-	
 	@Query(value = "{ $or: [ {'local': ?0}, {'visitor': ?0} ] }")
 	List<Round> findByTeamSorted(String team, Sort sort);
 	
-	@Query(value = "{ 'leagueCode': ?0, 'seasonCode': ?1 }")
-	List<Round> findByLeagueAndSeasonSorted(String leagueCode, int seasonCode, Sort sort);
-
 	@Query(value = "{ 'leagueCode': ?0, 'seasonCode': ?1, 'roundNumber': ?2, $or: [ {'local': ?3}, {'visitor': ?3} ] }")
 	Round findbyLeagueAndSeasonAndRoundAndTeam(String leagueCode, int seasonCode, int roundNumber, String team);
-
-	@Query(value = "{ 'leagueCode': ?0, 'seasonCode': ?1, 'roundNumber': ?2, 'local': ?3, 'visitor': ?4 }")
-	Round findByLeagueAndSeasonAndRoundAndLocalAndVisitor(String league, int season, int round,
-			String local, String visitor);
 }

@@ -8,6 +8,7 @@ import es.tml.qnl.model.mongo.GenericRound;
 import es.tml.qnl.model.mongo.Round;
 import es.tml.qnl.repositories.mongo.RoundPredictionRepository;
 import es.tml.qnl.repositories.mongo.RoundRepository;
+import es.tml.qnl.util.enums.Result;
 
 @Component
 public class StatisticsUtils {
@@ -107,5 +108,28 @@ public class StatisticsUtils {
 		}
 		
 		return previousPositionDifference;
+	}
+	
+	/**
+	 * Calculates result for a team and a round 
+	 * 
+	 * @param name Team name
+	 * @param round Round
+	 * @return Result
+	 */
+	public Result calculateResult(String name, GenericRound round) {
+		
+		Result result = null;
+		
+		if (round.getLocal().equals(name)) {
+			result = round.getLocalRes() > round.getVisitorRes() ? Result.A :
+				round.getLocalRes() == round.getVisitorRes() ? Result.B : Result.C;
+		}
+		else {
+			result = round.getVisitorRes() > round.getLocalRes() ? Result.A :
+				round.getVisitorRes() == round.getLocalRes() ? Result.B : Result.C;
+		}
+		
+		return result;
 	}
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import es.tml.qnl.model.mongo.StatPoints;
+import es.tml.qnl.model.mongo.StatsModelBase;
 import es.tml.qnl.repositories.mongo.StatPointsRepository;
 import es.tml.qnl.util.enums.Result;
 
@@ -29,5 +30,10 @@ public class PointsStatType extends BaseStatType {
 				.orElse(new StatPoints(points));
 		setResult(stat, result);
 		statPointsRepository.save(stat);
+	}
+
+	@Override
+	public StatsModelBase getStatistic(Integer points, Integer position, String sequence) {
+		return statPointsRepository.findByPoints(points);
 	}
 }
