@@ -159,12 +159,18 @@ public class StatisticsType {
 		if (StatisticType.ALL.equals(statisticType)) {
 			Arrays.stream(StatisticType.values()).forEach(stat -> {
 				if (!StatisticType.ALL.equals(stat)) {
-					stats.add(getStatType(statisticType).getStatistic(points, position, sequence));
+					StatsModelBase statistic = getStatType(stat).getStatistic(points, position, sequence);
+					if (statistic != null) {
+						stats.add(statistic);
+					}
 				}
 			});
 		}
 		else {
-			stats.add(getStatType(statisticType).getStatistic(points, position, sequence));
+			StatsModelBase statistic = getStatType(statisticType).getStatistic(points, position, sequence);
+			if (statistic != null) {
+				stats.add(statistic);
+			}
 		}
 		
 		return stats;

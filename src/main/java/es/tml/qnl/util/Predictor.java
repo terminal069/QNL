@@ -1,6 +1,7 @@
 package es.tml.qnl.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import es.tml.qnl.util.enums.Result;
 @Component
 public class Predictor {
 	
+	private static final int DECIMAL_SCALE = 10;
 	private static final String QNL_DEFAULT_MAX_ITERATIONS = "qnl.defaultMaxIterations";
 	private static final String QNL_STATISTICS_MIN_DATA_QUANTITY_TO_BE_VALID = "qnl.statistics.minDataQuantityToBeValid";
 	
@@ -202,7 +204,8 @@ public class Predictor {
 	 */
 	private Prediction calculatePrediction(List<StatsModelBase> stats) {
 
-		Prediction prediction = new Prediction();
+		Prediction prediction = new Prediction(
+				null, null, null, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
 		
 		List<StatsModelBase> statsFiltered = stats.stream()
 				.filter(localStat -> isStatValid(localStat))
@@ -243,11 +246,12 @@ public class Predictor {
 
 		BigDecimal increasePercentage = BigDecimal.ZERO;
 		
-		stats.forEach(stat -> {
-			increasePercentage.add(statisticsType.getStatisticWeigth(stat));
-		});
+		for (StatsModelBase stat : stats) {
+			increasePercentage = increasePercentage.add(statisticsType.getStatisticWeigth(stat));
+		}
 		
-		return BigDecimal.ONE.divide(increasePercentage);
+		return increasePercentage.equals(BigDecimal.ZERO) ?
+				BigDecimal.ONE : BigDecimal.ONE.divide(increasePercentage, DECIMAL_SCALE, RoundingMode.HALF_UP);
 	}
 	
 	/**
@@ -259,17 +263,17 @@ public class Predictor {
 	 */
 	private Prediction calculatePredictionWithIncreasePercentage(StatsModelBase stat, BigDecimal increasePercentage) {
 		
-		BigDecimal total = new BigDecimal(stat.getLocalWinner())
-				.add(new BigDecimal(stat.getTied()))
-				.add(new BigDecimal(stat.getVisitorWinner()));
+		BigDecimal total = new BigDecimal(stat.getLocalWinner() + stat.getTied() + stat.getVisitorWinner());
+		
+		BigDecimal percentage = statisticsType.getStatisticWeigth(stat).multiply(increasePercentage);
 		
 		return new Prediction(
 				null,
 				null,
 				null,
-				new BigDecimal(stat.getLocalWinner()).divide(total).multiply(increasePercentage),
-				new BigDecimal(stat.getTied()).divide(total).multiply(increasePercentage),
-				new BigDecimal(stat.getVisitorWinner()).divide(total).multiply(increasePercentage));
+				new BigDecimal(stat.getLocalWinner()).divide(total, DECIMAL_SCALE, RoundingMode.HALF_UP).multiply(percentage),
+				new BigDecimal(stat.getTied()).divide(total, DECIMAL_SCALE, RoundingMode.HALF_UP).multiply(percentage),
+				new BigDecimal(stat.getVisitorWinner()).divide(total, DECIMAL_SCALE, RoundingMode.HALF_UP).multiply(percentage));
 	}
 	
 	/**
