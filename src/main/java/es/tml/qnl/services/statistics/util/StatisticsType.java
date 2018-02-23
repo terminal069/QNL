@@ -7,8 +7,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import es.tml.qnl.exceptions.QNLException;
 import es.tml.qnl.model.mongo.StatsModelBase;
 import es.tml.qnl.services.statistics.BaseStatType;
 import es.tml.qnl.services.statistics.PointsPositionSequenceStatType;
@@ -28,14 +30,36 @@ public class StatisticsType {
 	 */
 	public enum StatisticType {
 	
-		ALL,
-		POINTS,
-		POSITION,
-		SEQUENCE,
-		POINTS_POSITION,
-		POINTS_SEQUENCE,
-		POSITION_SEQUENCE,
-		POINTS_POSITION_SEQUENCE;
+		ALL(true),
+		POINTS(false),
+		POSITION(false),
+		SEQUENCE(false),
+		POINTS_POSITION(false),
+		POINTS_SEQUENCE(false),
+		POSITION_SEQUENCE(false),
+		POINTS_POSITION_SEQUENCE(false);
+		
+		private boolean multiple;
+		
+		/**
+		 * Constructor
+		 * 
+		 * @param multiple Indicates if the statistic type includes various statistics
+		 */
+		private StatisticType(boolean multiple) {
+			
+			this.multiple = multiple;
+		}
+		
+		/**
+		 * Indicates if the statistic type includes various statistics
+		 * 
+		 * @return If the statistic includes various statistics
+		 */
+		public boolean isMultiple() {
+			
+			return this.multiple;
+		}
 	}
 	
 	/**
@@ -108,9 +132,9 @@ public class StatisticsType {
 	 */
 	public void deleteOldData(StatisticType statisticType) {
 		
-		if (StatisticType.ALL.equals(statisticType)) {
+		if (statisticType.isMultiple()) {
 			Arrays.stream(StatisticType.values()).forEach(stat -> {
-				if (!StatisticType.ALL.equals(stat)) {
+				if (!stat.isMultiple()) {
 					deleteOldData(stat);
 				}
 			});
@@ -131,9 +155,9 @@ public class StatisticsType {
 	 */
 	public void saveStatistic(StatisticType statisticType, Integer points, Integer position, String sequence, Result result) {
 		
-		if (StatisticType.ALL.equals(statisticType)) {
+		if (statisticType.isMultiple()) {
 			Arrays.stream(StatisticType.values()).forEach(stat -> {
-				if (!StatisticType.ALL.equals(stat)) {
+				if (!stat.isMultiple()) {
 					saveStatistic(stat, points, position, sequence, result);
 				}
 			});
@@ -156,9 +180,9 @@ public class StatisticsType {
 		
 		List<StatsModelBase> stats = new ArrayList<>();
 		
-		if (StatisticType.ALL.equals(statisticType)) {
+		if (statisticType.isMultiple()) {
 			Arrays.stream(StatisticType.values()).forEach(stat -> {
-				if (!StatisticType.ALL.equals(stat)) {
+				if (!stat.isMultiple()) {
 					StatsModelBase statistic = getStatType(stat).getStatistic(points, position, sequence);
 					if (statistic != null) {
 						stats.add(statistic);
@@ -233,7 +257,19 @@ public class StatisticsType {
 
 		BigDecimal weight = null;
 		
-		StatisticClassName clazzName = StatisticClassName.valueOf(stat.getClass().getSimpleName());
+		StatisticClassName clazzName;
+		
+		try {
+			clazzName = StatisticClassName.valueOf(stat.getClass().getSimpleName());
+		}
+		catch(IllegalArgumentException e) {
+			throw new QNLException(
+					HttpStatus.INTERNAL_SERVER_ERROR, 
+					"Class '"
+						+ stat.getClass().getSimpleName() 
+						+ "' not mapped into enum '" 
+						+ StatisticClassName.class.getSimpleName() + "'");
+		}
 		
 		switch(clazzName) {
 			case StatPoints: {

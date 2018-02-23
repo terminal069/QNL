@@ -111,11 +111,12 @@ public class StatisticsUtils {
 	}
 	
 	/**
-	 * Calculates result for a team and a round 
+	 * Calculates result for a team and a round. Indicates if a team has won, drawn or lost
+	 * in a round 
 	 * 
 	 * @param name Team name
-	 * @param round Round
-	 * @return Result
+	 * @param round Round data
+	 * @return Result (win, draw or lose)
 	 */
 	public Result calculateResult(String name, GenericRound round) {
 		

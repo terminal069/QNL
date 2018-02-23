@@ -32,6 +32,7 @@ import es.tml.qnl.util.enums.Result;
 public class Predictor {
 	
 	private static final int DECIMAL_SCALE = 10;
+	
 	private static final String QNL_DEFAULT_MAX_ITERATIONS = "qnl.defaultMaxIterations";
 	private static final String QNL_STATISTICS_MIN_DATA_QUANTITY_TO_BE_VALID = "qnl.statistics.minDataQuantityToBeValid";
 	
@@ -163,7 +164,7 @@ public class Predictor {
 		Prediction visitorPrediction = calculatePrediction(visitorStats);
 		
 		// TODO: estimate result with predictions calculated before
-			
+		
 		
 		
 		
