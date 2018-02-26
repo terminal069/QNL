@@ -23,7 +23,7 @@ public class SequenceStatType extends BaseStatType {
 	}
 
 	@Override
-	public void saveStatistic(Integer points, Integer position, String sequence, Result result) {
+	public void saveStatistic(Integer points, Integer position, String sequence, Result result, boolean isLocal) {
 
 		StatSequence stat = Optional
 				.ofNullable(statSequenceRepository.findBySequence(sequence))

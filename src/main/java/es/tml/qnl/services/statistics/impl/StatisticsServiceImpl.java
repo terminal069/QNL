@@ -144,8 +144,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 			
 			Integer points = statisticsUtils.getPointsBeforeMatch(round);
 			String sequence = fifoQueue.toStringFromHeadToTail();
+			boolean isLocal = team.equals(round.getLocal());
 			
-			statisticsType.saveStatistic(statisticType, points, position, sequence, result);
+			statisticsType.saveStatistic(statisticType, points, position, sequence, result, isLocal);
 		}
 		
 		fifoQueue.push(result);

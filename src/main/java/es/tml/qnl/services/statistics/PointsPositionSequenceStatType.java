@@ -23,13 +23,15 @@ public class PointsPositionSequenceStatType extends BaseStatType {
 	}
 
 	@Override
-	public void saveStatistic(Integer points, Integer position, String sequence, Result result) {
+	public void saveStatistic(Integer points, Integer position, String sequence, Result result, boolean isLocal) {
 
-		StatPointsPositionSequence stat = Optional
-				.ofNullable(statPointsPositionSequenceRepository.findByPointsAndPositionAndSequence(points, position, sequence))
-				.orElse(new StatPointsPositionSequence(points, position, sequence));
-		setResult(stat, result);
-		statPointsPositionSequenceRepository.save(stat);
+		if (isLocal) {
+			StatPointsPositionSequence stat = Optional
+					.ofNullable(statPointsPositionSequenceRepository.findByPointsAndPositionAndSequence(points, position, sequence))
+					.orElse(new StatPointsPositionSequence(points, position, sequence));
+			setResult(stat, result);
+			statPointsPositionSequenceRepository.save(stat);
+		}
 	}
 
 	@Override

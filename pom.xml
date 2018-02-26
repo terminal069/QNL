@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.tml.qnl</groupId>
 	<artifactId>qnl</artifactId>
-	<version>0.15.1-SNAPSHOT</version>
+	<version>0.15.2-SNAPSHOT</version>
 	<name>QNL</name>
 
 	<properties>

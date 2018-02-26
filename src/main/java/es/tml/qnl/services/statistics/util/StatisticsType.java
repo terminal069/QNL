@@ -152,18 +152,19 @@ public class StatisticsType {
 	 * @param position Position value
 	 * @param sequence Sequence value
 	 * @param result Result of the match
+	 * @param isLocal Indicates if the statistic is calculated for a local team
 	 */
-	public void saveStatistic(StatisticType statisticType, Integer points, Integer position, String sequence, Result result) {
+	public void saveStatistic(StatisticType statisticType, Integer points, Integer position, String sequence, Result result, boolean isLocal) {
 		
 		if (statisticType.isMultiple()) {
 			Arrays.stream(StatisticType.values()).forEach(stat -> {
 				if (!stat.isMultiple()) {
-					saveStatistic(stat, points, position, sequence, result);
+					saveStatistic(stat, points, position, sequence, result, isLocal);
 				}
 			});
 		}
 		else {
-			getStatType(statisticType).saveStatistic(points, position, sequence, result);
+			getStatType(statisticType).saveStatistic(points, position, sequence, result, isLocal);
 		}
 	}
 	

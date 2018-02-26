@@ -23,13 +23,15 @@ public class PointsStatType extends BaseStatType {
 	}
 
 	@Override
-	public void saveStatistic(Integer points, Integer position, String sequence, Result result) {
+	public void saveStatistic(Integer points, Integer position, String sequence, Result result, boolean isLocal) {
 
-		StatPoints stat = Optional
-				.ofNullable(statPointsRepository.findByPoints(points))
-				.orElse(new StatPoints(points));
-		setResult(stat, result);
-		statPointsRepository.save(stat);
+		if (isLocal) {
+			StatPoints stat = Optional
+					.ofNullable(statPointsRepository.findByPoints(points))
+					.orElse(new StatPoints(points));
+			setResult(stat, result);
+			statPointsRepository.save(stat);
+		}
 	}
 
 	@Override
