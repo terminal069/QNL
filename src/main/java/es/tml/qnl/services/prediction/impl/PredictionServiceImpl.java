@@ -40,6 +40,8 @@ public class PredictionServiceImpl implements PredictionService {
 	@Override
 	public PredictionResponse makePrediction(PredictionRequest request) {
 		
+		initialize();
+		
 		// Delete old data
 		roundPredictionRepository.deleteAll();
 		
@@ -53,6 +55,11 @@ public class PredictionServiceImpl implements PredictionService {
 		return new PredictionResponse(
 				request.getId(),
 				predictions);
+	}
+
+	private void initialize() {
+
+		predictor.setPrediction(true);
 	}
 
 	/**

@@ -23,6 +23,8 @@ import es.tml.qnl.beans.catalog.GetRoundResponse;
 import es.tml.qnl.beans.catalog.GetTeamsResponse;
 import es.tml.qnl.beans.catalog.LoadDataRequest;
 import es.tml.qnl.services.catalog.CatalogService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -86,6 +88,13 @@ public class CatalogController {
 	@ApiOperation(
 			value = "Get round data",
 			notes = "This service is used to get data from a round based on request parameters")
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = ROUND_NUMBER, value = "Round number", dataType = "number", paramType = "query"),
+	    @ApiImplicitParam(name = SEASON_CODE, value = "Season code", dataType = "number", paramType = "query"),
+	    @ApiImplicitParam(name = LEAGUE_CODE, value = "League code", dataType = "string", paramType = "query"),
+	    @ApiImplicitParam(name = LOCAL, value = "Local team", dataType = "string", paramType = "query"),
+	    @ApiImplicitParam(name = VISITOR, value = "Visitor team", dataType = "string", paramType = "query")
+	  })
 	@ApiResponses({
 		@ApiResponse(code = HttpServletResponse.SC_OK, message = "Properly gotten round data"),
 		@ApiResponse(code = HttpServletResponse.SC_METHOD_NOT_ALLOWED, message = "Method not allowed"),

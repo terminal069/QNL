@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import es.tml.qnl.model.mongo.GenericRound;
 import es.tml.qnl.model.mongo.RoundPrediction;
 
 public interface RoundPredictionRepository extends MongoRepository<RoundPrediction, String> {
@@ -28,7 +29,7 @@ public interface RoundPredictionRepository extends MongoRepository<RoundPredicti
 			+ "    {'roundNumber': {$gte: ?3}},"
 			+ "    {'roundNumber': {$lt: ?4}}"
 			+ "  ]}")
-	List<RoundPrediction> findByLeagueAndSeasonAndTeamFromRoundToRoundSorted(String league, int season, String team,
+	List<GenericRound> findByLeagueAndSeasonAndTeamFromRoundToRoundSorted(String league, int season, String team,
 			int fromRound, int toRound, Sort sort);
 
 }

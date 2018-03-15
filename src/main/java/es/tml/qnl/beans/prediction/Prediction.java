@@ -2,6 +2,7 @@ package es.tml.qnl.beans.prediction;
 
 import java.math.BigDecimal;
 
+import es.tml.qnl.util.enums.Result;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,18 +12,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Prediction {
 
-	private static final String NO_DATA_AVAILABLE = "NO_DATA_AVAILABLE";
-	
 	private String local;
 	
 	private String visitor;
 	
-	private String prediction;
+	private Result prediction;
 	
 	private BigDecimal localWinProbability;
 	
 	private BigDecimal drawProbability;
 	
 	private BigDecimal visitorWinProbability;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param local Local
+	 * @param visitor Visitor
+	 */
+	public Prediction(String local, String visitor) {
+		
+		this.local = local;
+		this.visitor = visitor;
+	}
 	
 }

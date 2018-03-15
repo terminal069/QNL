@@ -28,6 +28,10 @@ qnl:
     win: 3
   statistics:
     minDataQuantityToBeValid: 10
+    minIncrement: 0.05
+    # TEST | ALL
+    multiple: TEST 
+    percentageControl: 0.1
     weight:
       points: 0.1
       position: 0.1

@@ -21,7 +21,9 @@ import es.tml.qnl.services.statistics.PositionSequenceStatType;
 import es.tml.qnl.services.statistics.PositionStatType;
 import es.tml.qnl.services.statistics.SequenceStatType;
 import es.tml.qnl.util.enums.Result;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class StatisticsType {
 	
@@ -30,25 +32,28 @@ public class StatisticsType {
 	 */
 	public enum StatisticType {
 	
-		ALL(true),
-		POINTS(false),
-		POSITION(false),
-		SEQUENCE(false),
-		POINTS_POSITION(false),
-		POINTS_SEQUENCE(false),
-		POSITION_SEQUENCE(false),
-		POINTS_POSITION_SEQUENCE(false);
+		TEST(true, "test"),
+		ALL(true, "all"),
+		POINTS(false, "points"),
+		POSITION(false, "position"),
+		SEQUENCE(false, "sequence"),
+		POINTS_POSITION(false, "points-position"),
+		POINTS_SEQUENCE(false, "points-sequence"),
+		POSITION_SEQUENCE(false, "position-sequence"),
+		POINTS_POSITION_SEQUENCE(false, "points-position-sequence");
 		
 		private boolean multiple;
+		private String name;
 		
 		/**
 		 * Constructor
 		 * 
 		 * @param multiple Indicates if the statistic type includes various statistics
 		 */
-		private StatisticType(boolean multiple) {
+		private StatisticType(boolean multiple, String name) {
 			
 			this.multiple = multiple;
+			this.name = name;
 		}
 		
 		/**
@@ -59,6 +64,65 @@ public class StatisticsType {
 		public boolean isMultiple() {
 			
 			return this.multiple;
+		}
+		
+		/**
+		 * Return the name of the statistic
+		 * 
+		 * @return Name of the statistic
+		 */
+		public String getName() {
+			
+			return this.name;
+		}
+		
+		/**
+		 * Return all statistics from a multiple type of statistic
+		 * 
+		 * @param multiple Multiple type statistic
+		 * @return List of statistics of a multiple type
+		 */
+		public static List<StatisticType> getStatisticsFromMultiple(StatisticType multiple) {
+			
+			List<StatisticType> statistics = null;
+			
+			switch(multiple) {
+				case ALL: {
+					statistics = Arrays.asList(
+							POINTS,
+							POSITION,
+							SEQUENCE,
+							POINTS_POSITION,
+							POINTS_SEQUENCE,
+							POSITION_SEQUENCE,
+							POINTS_POSITION_SEQUENCE);
+					break;
+				}
+				case TEST: {
+					statistics = Arrays.asList(
+							POINTS,
+							POSITION,
+							SEQUENCE);
+					break;
+				}
+				default: {
+					throw new IllegalArgumentException("Enum value '" + multiple.name() + "' not accepted");
+				}
+			}
+			
+			return statistics;
+		}
+		
+		/**
+		 * Return the number of not multiple statistics
+		 * 
+		 * @return Numer of not multiple statistics
+		 */
+		public static int totalStatistics() {
+			
+			return (int) Arrays.stream(StatisticType.values())
+				.filter(stat -> !stat.isMultiple())
+				.count();
 		}
 	}
 	
@@ -133,13 +197,11 @@ public class StatisticsType {
 	public void deleteOldData(StatisticType statisticType) {
 		
 		if (statisticType.isMultiple()) {
-			Arrays.stream(StatisticType.values()).forEach(stat -> {
-				if (!stat.isMultiple()) {
-					deleteOldData(stat);
-				}
-			});
+			StatisticType.getStatisticsFromMultiple(statisticType)
+					.forEach(stat -> deleteOldData(stat));
 		}
 		else {
+			log.debug("Deleting old data for '{}' statistic", statisticType.getName());
 			getStatType(statisticType).deleteOldData();
 		}
 	}
@@ -157,11 +219,8 @@ public class StatisticsType {
 	public void saveStatistic(StatisticType statisticType, Integer points, Integer position, String sequence, Result result, boolean isLocal) {
 		
 		if (statisticType.isMultiple()) {
-			Arrays.stream(StatisticType.values()).forEach(stat -> {
-				if (!stat.isMultiple()) {
-					saveStatistic(stat, points, position, sequence, result, isLocal);
-				}
-			});
+			StatisticType.getStatisticsFromMultiple(statisticType)
+					.forEach(stat -> saveStatistic(stat, points, position, sequence, result, isLocal));
 		}
 		else {
 			getStatType(statisticType).saveStatistic(points, position, sequence, result, isLocal);
@@ -182,12 +241,10 @@ public class StatisticsType {
 		List<StatsModelBase> stats = new ArrayList<>();
 		
 		if (statisticType.isMultiple()) {
-			Arrays.stream(StatisticType.values()).forEach(stat -> {
-				if (!stat.isMultiple()) {
-					StatsModelBase statistic = getStatType(stat).getStatistic(points, position, sequence);
-					if (statistic != null) {
-						stats.add(statistic);
-					}
+			StatisticType.getStatisticsFromMultiple(statisticType).forEach(stat -> {
+				StatsModelBase statistic = getStatType(stat).getStatistic(points, position, sequence);
+				if (statistic != null) {
+					stats.add(statistic);
 				}
 			});
 		}
@@ -247,7 +304,7 @@ public class StatisticsType {
 		
 		return baseStatType;
 	}
-
+	
 	/**
 	 * Get weight of a statistic
 	 * 
@@ -304,5 +361,48 @@ public class StatisticsType {
 		}
 		
 		return weight;
+	}
+	
+	/**
+	 * Change the weight of a statistic
+	 * 
+	 * @param statisticType Statistic
+	 * @param weight New weight
+	 */
+	public void changeStatisticWeight(StatisticType statisticType, BigDecimal weight) {
+		
+		switch(statisticType) {
+			case POINTS: {
+				pointsWeight = weight;
+				break;
+			}
+			case POSITION: {
+				positionWeight = weight;
+				break;
+			}
+			case SEQUENCE: {
+				sequenceWeight = weight;
+				break;
+			}
+			case POINTS_POSITION: {
+				pointsPositionWeight = weight;
+				break;
+			}
+			case POINTS_SEQUENCE: {
+				pointsSequenceWeight = weight;
+				break;
+			}
+			case POSITION_SEQUENCE: {
+				positionSequenceWeight = weight;
+				break;
+			}
+			case POINTS_POSITION_SEQUENCE: {
+				pointsPositionSequenceWeight = weight;
+				break;
+			}
+			default: {
+				throw new IllegalArgumentException("Enum value '" + statisticType.name() + "' not accepted");
+			}
+		}
 	}
 }
