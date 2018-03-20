@@ -43,6 +43,7 @@ public class Predictor {
 	private static final String QNL_STATISTICS_MIN_DATA_QUANTITY_TO_BE_VALID = "qnl.statistics.minDataQuantityToBeValid";
 	private static final String QNL_STATISTICS_MULTIPLE = "qnl.statistics.multiple";
 	
+	@Setter
 	@Value("${" + QNL_DEFAULT_MAX_ITERATIONS + "}")
 	private Integer qnlDefaultMaxIterations;
 	

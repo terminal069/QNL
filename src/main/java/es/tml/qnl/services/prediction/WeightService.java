@@ -10,7 +10,8 @@ public interface WeightService {
 	 * Calculate weights of each statistic
 	 * 
 	 * @param increment Increment used to calculate weights
+	 * @param maxIterations Maximum number of iterations used to calculate the sequence of results
 	 * @return Weights of each statistic
 	 */
-	WeightResponse calculateWeights(BigDecimal increment);
+	WeightResponse calculateWeights(BigDecimal increment, Integer maxIterations);
 }

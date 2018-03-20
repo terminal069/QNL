@@ -66,8 +66,10 @@ public class PredictionController {
 	})
 	public WeightResponse calculateWeights(
 			@ApiParam(value = "Value used to calculate weights")
-			@RequestParam BigDecimal increment) {
+			@RequestParam BigDecimal increment,
+			@ApiParam(value = "Maximum number of iterations used to calculate the sequence of results")
+			@RequestParam Integer maxIterations) {
 		
-		return weightService.calculateWeights(increment);
+		return weightService.calculateWeights(increment, maxIterations);
 	}
 }

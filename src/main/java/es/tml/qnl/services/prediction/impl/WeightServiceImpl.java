@@ -79,13 +79,13 @@ public class WeightServiceImpl implements WeightService {
 	private int totalStats;
 	
 	@Override
-	public WeightResponse calculateWeights(BigDecimal increment) {
+	public WeightResponse calculateWeights(BigDecimal increment, Integer maxIterations) {
 
 		int totalStatistics = StatisticType.getStatisticsFromMultiple(statisticUsed).size();
 
 		validateParams(increment, totalStatistics);
 
-		initialize(increment, totalStatistics);
+		initialize(increment, totalStatistics, maxIterations);
 		
 		getRounds();
 		
@@ -127,8 +127,9 @@ public class WeightServiceImpl implements WeightService {
 	 * 
 	 * @param increment Increment used to calculate weights
 	 * @param totalStatistics Total number of statistics
+	 * @param maxIterations Maximum number of iterations used to calculate the sequence of results
 	 */
-	private void initialize(BigDecimal increment, int totalStatistics) {
+	private void initialize(BigDecimal increment, int totalStatistics, Integer maxIterations) {
 
 		statistics = new StatisticType[totalStatistics];
 		weights = new HashMap<>();
@@ -143,6 +144,7 @@ public class WeightServiceImpl implements WeightService {
 		// Sets statistics type to predictor to use the same as this service
 		predictor.setStatisticsType(statisticsType);
 		predictor.setPrediction(false);
+		predictor.setQnlDefaultMaxIterations(maxIterations);
 		
 		// Initialize time estimator
 		timeLeftEstimator.init(calculateTotalCombinations(increment, totalStatistics));
@@ -459,7 +461,13 @@ public class WeightServiceImpl implements WeightService {
 		log.info("Difference of hit percentage between test ({}) and control ({}) rounds: {}",
 				testRounds.size(),
 				controlRounds.size(),
-				maxHits.getTestHitPercentage().subtract(maxHits.getControlHitPercentage()));
+				maxHits.getTestHitPercentage()
+					.subtract(maxHits.getControlHitPercentage())
+					.multiply(new BigDecimal(100))
+					.abs()
+					.setScale(4, RoundingMode.HALF_UP)
+					.toPlainString()
+					+ "%");
 		
 		results.remove(controlKey);
 	}

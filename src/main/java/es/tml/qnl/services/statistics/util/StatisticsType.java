@@ -100,8 +100,6 @@ public class StatisticsType {
 				}
 				case TEST: {
 					statistics = Arrays.asList(
-							POINTS,
-							POSITION,
 							SEQUENCE);
 					break;
 				}

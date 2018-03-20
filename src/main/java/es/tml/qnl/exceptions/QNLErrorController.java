@@ -20,6 +20,8 @@ public class QNLErrorController {
 	public QNLGenericError handleQNLException(QNLException e, HttpServletResponse response,
             HttpServletRequest request) {
 		
+		log.error("Error: ", e);
+		
 		response.setStatus(e.getStatus().value());
 		
 		QNLGenericError genericError = new QNLGenericError();
@@ -35,12 +37,12 @@ public class QNLErrorController {
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public QNLGenericError handleException(Exception e) {
 		
+		log.error("Internal error: ", e);
+		
 		QNLGenericError genericError = new QNLGenericError();
 		genericError.setCode(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 		genericError.setErrorType(e.getClass().getName());
 		genericError.setErrorMessage(e.getMessage());
-		
-		log.error("Internal error: ", e);
 		
 		return genericError;
 	}
