@@ -1,6 +1,7 @@
 package es.tml.qnl.services.prediction.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,7 +19,10 @@ import es.tml.qnl.beans.prediction.Prediction;
 import es.tml.qnl.beans.prediction.StatisticWeight;
 import es.tml.qnl.beans.prediction.WeightResponse;
 import es.tml.qnl.exceptions.QNLException;
+import es.tml.qnl.model.mongo.Combination;
 import es.tml.qnl.model.mongo.Round;
+import es.tml.qnl.model.mongo.Weight;
+import es.tml.qnl.repositories.mongo.CombinationRepository;
 import es.tml.qnl.repositories.mongo.RoundRepository;
 import es.tml.qnl.services.prediction.WeightService;
 import es.tml.qnl.services.statistics.util.StatisticsType;
@@ -33,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class WeightServiceImpl implements WeightService {
 
 	private static final String COLON = ":";
+	private static final int BIG_DECIMAL_BASE_SCALE = 10;
 	
 	private static final String QNL_STATISTICS_MIN_INCREMENT = "qnl.statistics.minIncrement";
 	private static final String QNL_STATISTICS_PERCENTAGE_CONTROL = "qnl.statistics.percentageControl";
@@ -51,6 +56,9 @@ public class WeightServiceImpl implements WeightService {
 	private RoundRepository roundRepository;
 	
 	@Autowired
+	private CombinationRepository combinationRepository;
+	
+	@Autowired
 	private StatisticsType statisticsType;
 	
 	@Autowired
@@ -67,6 +75,8 @@ public class WeightServiceImpl implements WeightService {
 	private List<Round> testRounds = new ArrayList<>();
 	private List<Round> controlRounds = new ArrayList<>();
 	private Map<String, Integer> results = new HashMap<>();
+	private BigDecimal interval;
+	private int totalStats;
 	
 	@Override
 	public WeightResponse calculateWeights(BigDecimal increment) {
@@ -79,9 +89,15 @@ public class WeightServiceImpl implements WeightService {
 		
 		getRounds();
 		
+		deleteOldData();
+		
 		recursiveIteration(increment, totalStatistics);
 		
-		return getMaxHits();
+		WeightResponse maxHits = getMaxHits();
+		
+		checkControlRounds(maxHits);
+		
+		return maxHits;
 	}
 
 	/**
@@ -129,13 +145,62 @@ public class WeightServiceImpl implements WeightService {
 		predictor.setPrediction(false);
 		
 		// Initialize time estimator
-		timeLeftEstimator.init(BigDecimal.ONE
-				.divide(increment)
-				.add(BigDecimal.ONE)
-				.pow(totalStatistics)
-			.intValue());
+		timeLeftEstimator.init(calculateTotalCombinations(increment, totalStatistics));
+		
+		interval = increment;
+		totalStats = statistics.length;
 	}
 	
+	/**
+	 * Calculates total number of combinations
+	 * 
+	 * @param increment Increment used to calculate weights
+	 * @param totalStatistics Total number of statistics
+	 * @return Total number of statistics
+	 */
+	private int calculateTotalCombinations(BigDecimal increment, int totalStatistics) {
+
+		log.debug("Calculating total number of combinations");
+		
+		int total = recursiveCalculateTotalCombinations(increment, totalStatistics, 0);
+		
+		log.info("Total combinations: {}", total);
+		
+		weights.keySet().forEach(stat -> weights.put(stat, BigDecimal.ZERO));
+		
+		return total;
+	}
+
+	/**
+	 * Recursively, calculates total number of combinations
+	 * 
+	 * @param increment Increment of each combination of weights
+	 * @param iteration Number of the iteration
+	 * @param total Actual number of total combinations
+	 * @return Total number of statistics until this iteration
+	 */
+	private int recursiveCalculateTotalCombinations(BigDecimal increment, int iteration, int total) {
+
+		if (iteration > 0) {
+			
+			iteration--;
+			
+			for (BigDecimal weight = BigDecimal.ZERO; weight.compareTo(BigDecimal.ONE) <= 0; weight = weight.add(increment)) {
+				
+				weights.put(statistics[iteration], weight);
+				
+				if (weightsSumatory().compareTo(BigDecimal.ONE) == 0) {
+					
+					total++;
+				}
+				
+				total = recursiveCalculateTotalCombinations(increment, iteration, total);
+			}
+		}
+		
+		return total;
+	}
+
 	/**
 	 * Get all rounds from repository and split them into two lists: one to calculate statistics,
 	 * and the other to control results based on the weigths
@@ -151,6 +216,18 @@ public class WeightServiceImpl implements WeightService {
 					controlRounds.add(round);
 				}
 			});
+		
+		log.info("Total test rounds: {}", testRounds.size());
+		log.info("Total control rounds: {}", controlRounds.size());
+	}
+	
+	/**
+	 * Deletes data from repository by interval and total statistics calculated 
+	 */
+	private void deleteOldData() {
+
+//		combinationRepository.deleteByIntervalAndTotalStats(interval, totalStats); // TODO: descomentar
+		combinationRepository.deleteAll();
 	}
 	
 	/**
@@ -170,14 +247,15 @@ public class WeightServiceImpl implements WeightService {
 				
 				weights.put(statistics[iteration], weight);
 				
-				timeLeftEstimator.startPartial();
-				
 				if (weightsSumatory().compareTo(BigDecimal.ONE) == 0) {
+					timeLeftEstimator.startPartial();
+					
 					String key = initializeResultMap();
 					calculateStatistics(key);
+					saveCombination(key);
+					
+					timeLeftEstimator.finishPartial();
 				}
-				
-				timeLeftEstimator.finishPartial();
 				
 				recursiveIteration(increment, iteration);
 			}
@@ -244,12 +322,41 @@ public class WeightServiceImpl implements WeightService {
 				
 				Prediction prediction = predictor.predict(match);
 				
-				if (checkPrediction(prediction, round)) {
+				if (prediction != null && checkPrediction(prediction, round)) {
 					
 					results.put(key, results.get(key) + 1);
 				}
 			}
 		});
+	}
+	
+	/**
+	 * Save the combination into the repository
+	 * 
+	 * @param key Code
+	 */
+	private void saveCombination(String key) {
+
+		Combination combination = new Combination();
+		combination.setCode(key);
+		combination.setInterval(interval);
+		combination.setTotalStats(totalStats);
+		combination.setHits(results.get(key));
+		combination.setHitPercentage(BigDecimal.valueOf(results.get(key))
+				.divide(BigDecimal.valueOf(testRounds.size()), BIG_DECIMAL_BASE_SCALE, RoundingMode.HALF_UP));
+		
+		List<Weight> weights = new ArrayList<>();
+		
+		for (int i = 0; i < statistics.length; i++) {
+			Weight weight = new Weight();
+			weight.setStatistic(statistics[i]);
+			weight.setWeight(this.weights.get(statistics[i]));
+			weights.add(weight);
+		}
+		
+		combination.setWeights(weights);
+		
+		combinationRepository.save(combination);
 	}
 
 	/**
@@ -272,7 +379,7 @@ public class WeightServiceImpl implements WeightService {
 	 */
 	private WeightResponse getMaxHits() {
 
-		log.debug("Looking for the combination with the higher rate of hits from {} combinations", results.size());
+		log.info("Looking for the combination with the higher rate of hits from {} combinations", results.size());
 		
 		List<StatisticWeight> statisticWeights = new ArrayList<>();
 		
@@ -291,6 +398,70 @@ public class WeightServiceImpl implements WeightService {
 		}
 		
 		return new WeightResponse(statisticWeights);
+	}
+	
+	/**
+	 * Checks control rounds to see if they meet with the same weights calculated with test rounds
+	 *   
+	 * @param maxHits Weights with max hits
+	 */
+	private void checkControlRounds(WeightResponse maxHits) {
+
+		log.info("Checking control rounds");
+		
+		// change weights in StatisticsType
+		maxHits.getStatisticWeights().forEach(statisticWeight -> statisticsType.changeStatisticWeight(
+				StatisticType.getStatisticTypeFromName(statisticWeight.getName()),
+				statisticWeight.getWeight()));
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for (StatisticWeight statisticWeight : maxHits.getStatisticWeights()) {
+			sb.append(statisticWeight.getWeight() + COLON);
+		}
+
+		String key = sb.substring(0, sb.length() - 1).toString();
+		final String controlKey = "CONTROL:" + key;
+		results.put(controlKey, 0);
+		
+		// calculate statistics based on Predictor for each round
+		controlRounds.forEach(round -> {
+			
+			if (round.getRoundNumber() > 1) {
+				Match match = new Match(
+						round.getLeagueCode(),
+						round.getSeasonCode(),
+						round.getRoundNumber(),
+						round.getLocal(),
+						round.getVisitor());
+				
+				Prediction prediction = predictor.predict(match);
+				
+				if (prediction != null && checkPrediction(prediction, round)) {
+					
+					results.put(controlKey, results.get(controlKey) + 1);
+				}
+			}
+		});
+		
+		maxHits.setTestHitPercentage(BigDecimal.valueOf(results.get(key))
+				.divide(
+					BigDecimal.valueOf(testRounds.size()),
+					BIG_DECIMAL_BASE_SCALE,
+					RoundingMode.HALF_UP));
+		
+		maxHits.setControlHitPercentage(BigDecimal.valueOf(results.get(controlKey))
+				.divide(
+					BigDecimal.valueOf(controlRounds.size()),
+					BIG_DECIMAL_BASE_SCALE,
+					RoundingMode.HALF_UP));
+		
+		log.info("Difference of hit percentage between test ({}) and control ({}) rounds: {}",
+				testRounds.size(),
+				controlRounds.size(),
+				maxHits.getTestHitPercentage().subtract(maxHits.getControlHitPercentage()));
+		
+		results.remove(controlKey);
 	}
 
 }

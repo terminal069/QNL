@@ -124,6 +124,14 @@ public class StatisticsType {
 				.filter(stat -> !stat.isMultiple())
 				.count();
 		}
+		
+		public static StatisticType getStatisticTypeFromName(String name) {
+			
+			return Arrays.stream(StatisticType.values())
+				.filter(stat -> stat.getName().equals(name))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Enum value '" + name + "' not accepted"));
+		}
 	}
 	
 	/**

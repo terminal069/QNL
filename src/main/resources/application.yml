@@ -30,8 +30,9 @@ qnl:
     minDataQuantityToBeValid: 10
     minIncrement: 0.05
     # TEST | ALL
-    multiple: TEST 
-    percentageControl: 0.1
+    multiple: TEST
+#    percentageControl: 0.1
+    percentageControl: 0.95
     weight:
       points: 0.1
       position: 0.1

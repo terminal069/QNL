@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Prediction {
 
+	public static final String NO_DATA_AVAILABLE = "NO_DATA_AVAILABLE";
+	
 	private String local;
 	
 	private String visitor;
@@ -23,6 +25,8 @@ public class Prediction {
 	private BigDecimal drawProbability;
 	
 	private BigDecimal visitorWinProbability;
+	
+	private String message;
 	
 	/**
 	 * Constructor

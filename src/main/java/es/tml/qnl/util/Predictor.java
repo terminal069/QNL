@@ -81,11 +81,34 @@ public class Predictor {
 
 		List<Prediction> predictions = new ArrayList<>();
 		
-		matches.forEach(match -> predictions.add(predict(match)));
+		matches.forEach(match -> {
+			Prediction prediction = predict(match);
+			
+			if (prediction != null) {
+				predictions.add(prediction);
+			}
+			else {
+				predictions.add(generateEmptyPrediction(match));
+			}
+		});
 		
 		return predictions;
 	}
 
+	/**
+	 * Generates an empty prediction only with the name of local and visitor
+	 * 
+	 * @param match Match data
+	 * @return Empty prediction
+	 */
+	private Prediction generateEmptyPrediction(Match match) {
+
+		Prediction prediction = new Prediction(match.getLocal(), match.getVisitor());
+		prediction.setMessage(Prediction.NO_DATA_AVAILABLE);
+		
+		return prediction;
+	}
+	
 	/**
 	 * Predict result from a match
 	 * 
@@ -187,6 +210,8 @@ public class Predictor {
 	 */
 	private Prediction preparePrediction(GenericRound round) {
 		
+		Prediction prediction = null;
+		
 		// Get points, position and sequence from the match
 		int points = statisticsUtils.getPointsBeforeMatch(round);
 		Integer position = statisticsUtils.getPositionBeforeMatch(round);
@@ -196,17 +221,21 @@ public class Predictor {
 		String localSequence = getSequence(round, round.getLocal(), sequenceSize);
 		String visitorSequence = getSequence(round, round.getVisitor(), sequenceSize);
 		
-		// Get all types of statistics from the points, position and sequence calculated previously
-		List<StatsModelBase> localStats = statisticsType.getStatistic(statisticUsed, points, position, localSequence);
-		List<StatsModelBase> visitorStats = statisticsType.getStatistic(statisticUsed, points, position, visitorSequence);
+		if (position != null) {
+			// Get all types of statistics from the points, position and sequence calculated previously
+			List<StatsModelBase> localStats = statisticsType.getStatistic(statisticUsed, points, position, localSequence);
+			List<StatsModelBase> visitorStats = statisticsType.getStatistic(statisticUsed, points, position, visitorSequence);
+			
+			// Calculate predictions
+			Prediction localPrediction = calculatePartialPrediction(localStats);
+			Prediction visitorPrediction = calculatePartialPrediction(visitorStats);
+			
+			// Estimate result with predictions calculated before
+			prediction = new Prediction(round.getLocal(), round.getVisitor());
+			prediction = calculateFinalPrediction(prediction, localPrediction, visitorPrediction);
+		}
 		
-		// Calculate predictions
-		Prediction localPrediction = calculatePartialPrediction(localStats);
-		Prediction visitorPrediction = calculatePartialPrediction(visitorStats);
-		
-		// Estimate result with predictions calculated before
-		Prediction prediction = new Prediction(round.getLocal(), round.getVisitor());
-		return calculateFinalPrediction(prediction, localPrediction, visitorPrediction);
+		return prediction;
 	}
 
 	/**
@@ -257,7 +286,7 @@ public class Predictor {
 	private Prediction calculatePartialPrediction(List<StatsModelBase> stats) {
 
 		Prediction prediction = new Prediction(
-				null, null, null, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+				null, null, null, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, null);
 		
 		List<StatsModelBase> statsFiltered = stats.stream()
 				.filter(localStat -> isStatValid(localStat))
@@ -325,7 +354,8 @@ public class Predictor {
 				null,
 				new BigDecimal(stat.getLocalWinner()).divide(total, BIG_DECIMAL_BASE_SCALE, RoundingMode.HALF_UP).multiply(percentage),
 				new BigDecimal(stat.getTied()).divide(total, BIG_DECIMAL_BASE_SCALE, RoundingMode.HALF_UP).multiply(percentage),
-				new BigDecimal(stat.getVisitorWinner()).divide(total, BIG_DECIMAL_BASE_SCALE, RoundingMode.HALF_UP).multiply(percentage));
+				new BigDecimal(stat.getVisitorWinner()).divide(total, BIG_DECIMAL_BASE_SCALE, RoundingMode.HALF_UP).multiply(percentage),
+				null);
 	}
 	
 	/**
